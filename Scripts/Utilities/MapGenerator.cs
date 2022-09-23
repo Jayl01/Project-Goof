@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
-    public static Tile[,] map;
     public static System.Random worldRand;
     public static Point playerSpawnPoint;
     public static Vector2 lastChunkPos;
@@ -31,6 +30,9 @@ public class MapGenerator : MonoBehaviour
     public int amountOfRooms;
     public GameObject mapContainer;
 
+    public GameObject floorTile;
+    public GameObject wallTile;
+
     public GenerationDetails generationDetails;
 
     public void UpdateActiveChunk(Vector2 position, bool forced = false)
@@ -53,6 +55,7 @@ public class MapGenerator : MonoBehaviour
         //Player.player.SetPosition(playerSpawn);
         DontDestroyOnLoad(this);
         //UpdateActiveChunk(Player.player.topDownPos, true);
+        CreateWorld(mapWidth, mapHeight);
     }
 
     public void CreateMap()
@@ -73,10 +76,14 @@ public class MapGenerator : MonoBehaviour
     public void CreateWorld(int mapWidth, int mapHeight)
     {
         worldRand = new System.Random();
-        GenerationLayer floorLayer = CreateFloorLayer(mapWidth, mapHeight);
-        GenerationLayer lowerWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 1);
-        GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 1);
 
+        generationDetails = new GenerationDetails(new byte[1] { Tile.Dirt }, new int[1] { 100 });
+        GenerationLayer floorLayer = CreateFloorLayer(mapWidth, mapHeight);
+        generationDetails = new GenerationDetails(new byte[1] { Tile.Wall }, new int[1] { 100 });
+        GenerationLayer lowerWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 2);
+        GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
+        GenerationLayer[] worldLayers = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
+        ConvertLayersTo3D(worldLayers);
     }
 
     public bool CheckForOOB(Point point, bool createWorld = true)
@@ -85,7 +92,7 @@ public class MapGenerator : MonoBehaviour
         return outOfBounds;
     }
 
-    public void CreateSquareArea(int area, Point roomCenter, GenerationDetails details, Tile.GenerationID generationID)
+    public Tile[,] CreateSquareArea(int area, Point roomCenter, Tile[,] tiles, GenerationDetails details, Tile.GenerationID generationID)
     {
         Point roomTopLeft = new Point(roomCenter.X - (area / 2), roomCenter.Y - (area / 2));
         for (int x = 0; x < area; x++)
@@ -95,11 +102,12 @@ public class MapGenerator : MonoBehaviour
                 byte tileType = details.GetRandomTileType();
                 Point tilePoint = new Point(roomTopLeft.X + x, roomTopLeft.Y + y);
                 if (CheckForOOB(tilePoint))
-                    return;
+                    continue;
 
-                map[tilePoint.X, tilePoint.Y] = Tile.CreateTile(tileType, tilePoint, generationID);
+                tiles[tilePoint.X, tilePoint.Y] = Tile.CreateTile(tileType, tilePoint, generationID);
             }
         }
+        return tiles;
     }
 
     public GenerationLayer CreateFloorLayer(int width, int height)
@@ -119,8 +127,8 @@ public class MapGenerator : MonoBehaviour
         Point[] roomCenters = new Point[amountOfRooms];
         for (int i = 0; i < amountOfRooms; i++)
         {
-            int roomCenterX = worldRand.Next(1 + (MinimumRoomSize / 2), width - (MinimumRoomSize / 2) - 1);
-            int roomCenterY = worldRand.Next(1 + (MaximumRoomSize / 2), height - (MaximumRoomSize / 2) - 1);
+            int roomCenterX = worldRand.Next(2 + (MinimumRoomSize / 2), width - (MinimumRoomSize / 2) - 2);
+            int roomCenterY = worldRand.Next(2 + (MaximumRoomSize / 2), height - (MaximumRoomSize / 2) - 2);
             roomCenters[i] = new Point(roomCenterX, roomCenterY);
             if (i == 0)
                 playerSpawnPoint = roomCenters[i];
@@ -150,7 +158,7 @@ public class MapGenerator : MonoBehaviour
                 continue;
             }
 
-            CreateSquareArea(roomSize, roomCenters[i], generationDetails, Tile.GenerationID.Room);
+            floorLayer = CreateSquareArea(roomSize, roomCenters[i], floorLayer, generationDetails, Tile.GenerationID.Room);
         }
 
 
@@ -627,7 +635,7 @@ public class MapGenerator : MonoBehaviour
         return closestRoomIndex;
     }
 
-    public static void ScreenshotMap()
+    public static void ScreenshotMap(GenerationLayer generationLayer)
     {
         Texture2D dungeonResultOverviewTexture = new Texture2D(MapWidth, MapHeight);
         Color32[] resultData = new Color32[MapWidth * MapHeight];
@@ -635,7 +643,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = 0; y < MapHeight; y++)
             {
-                byte tileType = map[x, y].tileType;
+                byte tileType = generationLayer.layerTiles[x, y].tileType;
                 Color32 pixelColor = Color.white;
                 /*if (tileType == Tile.Air)
                 {
@@ -680,52 +688,48 @@ public class MapGenerator : MonoBehaviour
         File.WriteAllBytes(directory + "/Image" + ".png", image);
     }
 
-    private static Tile CheckTileAbove(Point coordinates)
-    {
-        if (coordinates.Y - 1 < 0)
-            return map[0, 0];
-
-        return map[coordinates.X, coordinates.Y - 1];
-    }
-
-    private static Tile CheckTileUnder(Point coordinates)
-    {
-        if (coordinates.Y + 1 >= MapHeight)
-            return map[0, 0];
-
-        return map[coordinates.X, coordinates.Y + 1];
-    }
-
-    private static Tile CheckTileLeft(Point coordinates)
-    {
-        if (coordinates.X - 1 < 0)
-            return map[0, 0];
-
-        return map[coordinates.X - 1, coordinates.Y];
-    }
-
-    private static Tile CheckTileRight(Point coordinates)
-    {
-        if (coordinates.X + 1 >= MapWidth)
-            return map[0, 0];
-
-        return map[coordinates.X + 1, coordinates.Y];
-    }
-
     private bool TileAroundInPreviousLayer(int x, int y, GenerationLayer generationLayer)
     {
         Point tilePoint = new Point(x, y);
-        return generationLayer.CheckTileAbove(tilePoint).tileType != Tile.Air || generationLayer.CheckTileUnder(tilePoint).tileType != Tile.Air || generationLayer.CheckTileLeft(tilePoint).tileType != Tile.Air || generationLayer.CheckTileRight(tilePoint).tileType != Tile.Air;
+        return generationLayer.layerTiles[x, y].tileType == Tile.Air && (generationLayer.CheckTileAbove(tilePoint).tileType != Tile.Air || generationLayer.CheckTileUnder(tilePoint).tileType != Tile.Air || generationLayer.CheckTileLeft(tilePoint).tileType != Tile.Air || generationLayer.CheckTileRight(tilePoint).tileType != Tile.Air);
     }
 
     private bool TileAroundInPreviousLayer(Point tilePoint, GenerationLayer generationLayer)
     {
-        return generationLayer.CheckTileAbove(tilePoint).tileType != Tile.Air || generationLayer.CheckTileUnder(tilePoint).tileType != Tile.Air || generationLayer.CheckTileLeft(tilePoint).tileType != Tile.Air || generationLayer.CheckTileRight(tilePoint).tileType != Tile.Air;
+        return generationLayer.layerTiles[tilePoint.X, tilePoint.Y].tileType == Tile.Air && (generationLayer.CheckTileAbove(tilePoint).tileType != Tile.Air || generationLayer.CheckTileUnder(tilePoint).tileType != Tile.Air || generationLayer.CheckTileLeft(tilePoint).tileType != Tile.Air || generationLayer.CheckTileRight(tilePoint).tileType != Tile.Air);
     }
 
-    private static void TranslateTo3D()
+    private void ConvertLayersTo3D(GenerationLayer[] generationLayers)
     {
+        for (int i = 0; i < generationLayers.Length; i++)
+        {
+            for (int x = 0; x < generationLayers[i].width; x++)
+            {
+                for (int y = 0; y < generationLayers[i].height; y++)
+                {
+                    if (generationLayers[i].layerTiles[x, y].tileType != Tile.Air)
+                    {
+                        GameObject tile = Instantiate(GetTileTypeEquivalent(generationLayers[i].layerTiles[x, y].tileType), mapContainer.transform);
+                        tile.transform.position = new Vector3(x, generationLayers[i].layerLevel + 0.5f, y);
+                    }
+                }
+            }
+        }
+    }
 
+    public GameObject GetTileTypeEquivalent(byte tileType)
+    {
+        switch (tileType)
+        {
+            case Tile.Air:
+                return null;
+            case Tile.Dirt:
+                return floorTile;
+            case Tile.Wall:
+                return wallTile;
+            default:
+                return null;
+        }
     }
 
     public static bool TypeMatch(int[] types, int type)

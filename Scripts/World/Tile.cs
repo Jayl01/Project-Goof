@@ -2,6 +2,7 @@ public struct Tile
 {
     public const byte Air = 0;
     public const byte Dirt = 1;
+    public const byte Wall = 2;
 
     public enum GenerationID
     {

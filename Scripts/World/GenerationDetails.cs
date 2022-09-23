@@ -8,6 +8,7 @@ public struct GenerationDetails
         this.tileTypes = tileTypes;
         this.tileChances = tileChances;
     }
+
     public byte GetRandomTileType()
     {
         if (tileTypes.Length == 1)
