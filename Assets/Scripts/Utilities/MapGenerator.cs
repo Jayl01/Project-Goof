@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
@@ -35,6 +33,8 @@ public class MapGenerator : MonoBehaviour
 
     public GenerationDetails generationDetails;
 
+    private static MapGenerator mapGenerator;
+
     public void UpdateActiveChunk(Vector2 position, bool forced = false)
     {
         if (Vector2.Distance(lastChunkPos, position) >= 5f || forced)
@@ -50,7 +50,7 @@ public class MapGenerator : MonoBehaviour
     public void Start()
     {
         //CreateWorld();
-
+        mapGenerator = this;
         Vector3 playerSpawn = new Vector3(playerSpawnPoint.X, 2, playerSpawnPoint.Y);
         //Player.player.SetPosition(playerSpawn);
         DontDestroyOnLoad(this);
@@ -70,7 +70,7 @@ public class MapGenerator : MonoBehaviour
     public void Update()
     {
         //if (allChecksCompleted)
-            //UpdateActiveChunk(Player.player.topDownPos);
+        //UpdateActiveChunk(Player.player.topDownPos);
     }
 
     public void CreateWorld(int mapWidth, int mapHeight)
@@ -84,6 +84,11 @@ public class MapGenerator : MonoBehaviour
         GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
         GenerationLayer[] worldLayers = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
         ConvertLayersTo3D(worldLayers);
+    }
+
+    public static void LoadWorld(GenerationLayer[] layers)
+    {
+        mapGenerator.ConvertLayersTo3D(layers);
     }
 
     public bool CheckForOOB(Point point, bool createWorld = true)
