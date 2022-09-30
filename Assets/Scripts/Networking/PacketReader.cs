@@ -18,7 +18,7 @@ public class PacketReader
                 break;
 
             case PacketType.WorldData:
-                packetReader.HandleWorldData(packet, reader);
+                packetReader.HandleWorldData(packet, sender);
                 break;
         }
     }
