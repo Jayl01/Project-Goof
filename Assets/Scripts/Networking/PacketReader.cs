@@ -1,6 +1,7 @@
 using LiteNetLib.Utils;
-using UnityEditor.VersionControl;
 using static Packets;
+using static NetworkData;
+using System.Collections.Generic;
 
 public class PacketReader
 {
@@ -17,6 +18,10 @@ public class PacketReader
                 packetReader.HandleObjectCreation(packet, sender);
                 break;
 
+            case PacketType.LobbyPlayerSync:
+                packetReader.HandleLobbyPlayerSync(packet, sender);
+                break;
+
             case PacketType.WorldData:
                 packetReader.HandleWorldData(packet, sender);
                 break;
@@ -26,6 +31,24 @@ public class PacketReader
     private void HandleObjectCreation(NetDataReader packet, byte sender)
     {
 
+    }
+
+    private void HandleLobbyPlayerSync(NetDataReader packet, byte sender)
+    {
+        LobbyManager.connectedPlayers = new Dictionary<string, PlayerData>();
+
+        int amountOfPlayers = packet.GetByte();
+        for (int i = 0; i < amountOfPlayers; i++)
+        {
+            PlayerData playerData = new PlayerData()
+            {
+                playerId = packet.GetByte(),
+                playerName = packet.GetString()
+            };
+            if (playerData.playerName == LobbyManager.PlayerName)
+                LobbyManager.self.clientID = playerData.playerId;
+            LobbyManager.connectedPlayers.Add(playerData.playerName, playerData);
+        }
     }
 
     private void HandleWorldData(NetDataReader packet, byte sender)

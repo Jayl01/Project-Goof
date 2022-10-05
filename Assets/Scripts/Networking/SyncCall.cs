@@ -1,5 +1,6 @@
 using LiteNetLib;
 using LiteNetLib.Utils;
+using System.Linq;
 using UnityEngine;
 using static Packets;
 
@@ -24,6 +25,22 @@ public static class SyncCall
         SendMessageToAllOthers(message, DeliveryMethod.ReliableUnordered);
     }
 
+    public static void SyncLobbyPlayers()
+    {
+        NetDataWriter message = new NetDataWriter(true);
+        message.Put((byte)PacketType.LobbyPlayerSync);
+        message.Put(LobbyManager.self.clientID);
+
+        message.Put((byte)LobbyManager.connectedPlayers.Count);
+        string[] playerKeys = LobbyManager.connectedPlayers.Keys.ToArray();
+        for (int i = 0; i < LobbyManager.connectedPlayers.Count; i++)
+        {
+            message.Put(i);
+            message.Put(playerKeys[i]);
+        }
+        SendMessageToAllOthers(message);
+    }
+
     public static void SyncWorld(GenerationLayer[] generationLayers)
     {
         NetDataWriter message = new NetDataWriter(true, 27);
@@ -44,6 +61,7 @@ public static class SyncCall
                 }
             }
         }
+        SendMessageToAllOthers(message);
     }
 
     /// <summary>
