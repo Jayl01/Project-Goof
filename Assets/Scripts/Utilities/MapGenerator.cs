@@ -10,8 +10,8 @@ public class MapGenerator : MonoBehaviour
     public static bool queuedChunkUpdate = false;
     public static bool allChecksCompleted = false;
 
-    public const int MapWidth = 250;
-    public const int MapHeight = 250;
+    public const int MapWidth = 600;
+    public const int MapHeight = 600;
     private const int MinimumRoomSize = 12;
     private const int MaximumRoomSize = 20;
     private const int MaxConnectedHallways = 2;
@@ -82,7 +82,7 @@ public class MapGenerator : MonoBehaviour
         generationDetails = new GenerationDetails(new byte[1] { Tile.Wall }, new int[1] { 100 });
         GenerationLayer lowerWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 2);
         GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
-        GenerationLayer[] worldLayers = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
+        GenerationLayer[] worldLayers = new GenerationLayer[2] { floorLayer, lowerWallLayer};
         ConvertLayersTo3D(worldLayers);
     }
 
