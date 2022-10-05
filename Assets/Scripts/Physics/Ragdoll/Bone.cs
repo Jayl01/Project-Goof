@@ -41,22 +41,25 @@ public class Bone : MonoBehaviour
     Vector3 netForce, vel;
 
     [SerializeField]
-    float mass = 1;
-    float massInv;
+    public float mass = 1;
+    public float massInv;
 
-    Component[] childBones;
+    Constraint[] constraints;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        // childBones = FindComponentInChildren(typeof(Bone));
         netForce = Vector3.zero;
         vel = Vector3.zero;
 
         // this is done in order to multiply by 1/mass for f=ma (a = f/m = f * 1/m) since multiplication is cheaper than division
         // also checking that if mass is 0 then we will treat is as a kinematic rigidbody. aka an immovable object via normal forces
         massInv = (mass != 0) ? 1/mass : 0;
+        List<Constraint> tempConstraints = new List<Constraint>();
+        tempConstraints.AddRange(GetComponents<LookTowards>()); 
+        tempConstraints.AddRange(GetComponents<Distance>());
+        constraints = tempConstraints.ToArray();
 
 
     }
@@ -65,7 +68,7 @@ public class Bone : MonoBehaviour
     void FixedUpdate()
     {
         // vel = (((transform.position + vel) - root).normalized * length + root) - transform.position;
-        transform.position +=vel;
+        // transform.position +=vel;
         // parentT.rotation = Quaternion.LookRotation(transform.position - parentT.position, Vector3.Cross());
         // PhysicsManager.GRAVITY = new Vector3(Random.Range(-10,10), Random.Range(-10,10), Random.Range(-10,10)) * 0.1f;
     }
@@ -79,9 +82,28 @@ public class Bone : MonoBehaviour
         netForce = force;
     }
 
+    public void UpdatePosition()
+    {
+        transform.position = transform.position + vel * Time.fixedDeltaTime;
+    }
+    public Vector3 GetPredictedPosition(){
+        return transform.position + vel * Time.fixedDeltaTime;
+    }
 // this should only be called once per frame after all the force calculations have been calculated
     public void UpdateVelocity(){
         vel += netForce * massInv;
+    }
+
+// only to be used for debugging, otherwise use add force so mass calculations are involved
+    public void AddVelocity(Vector3 velocity){
+        vel += velocity;
+    }
+
+    public void Constrain(){
+        foreach (Constraint constraint in constraints)
+        {
+            constraint.Work();
+        }
     }
 
 
@@ -125,13 +147,7 @@ public class Bone : MonoBehaviour
     //     }
     // }
 
-    public void UpdatePosition()
-    {
-        transform.position = transform.position + vel * Time.fixedDeltaTime;
-    }
-    public Vector3 GetPredictedPosition(){
-        return transform.position + vel * Time.fixedDeltaTime;
-    }
+    
 
 
     /// <summary> only keeping this if I ever want to go back to rotational physics

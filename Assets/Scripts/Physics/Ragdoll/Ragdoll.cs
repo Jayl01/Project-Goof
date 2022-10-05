@@ -16,6 +16,10 @@ public class Ragdoll : MonoBehaviour
         boneList.Add(rootBone);
         boneList.AddRange(rootBone.FindChildren());
         bones = boneList.ToArray();
+        foreach (Bone bone in bones)
+        {
+            bone.transform.SetParent(transform);
+        }
     }
 
     private void FixedUpdate()
@@ -25,6 +29,7 @@ public class Ragdoll : MonoBehaviour
             bone.SetNetForce(new Vector3(Random.Range(-10,10), Random.Range(-10,10), Random.Range(-10,10)) * 0.01f   );
             bone.UpdateVelocity();
             bone.UpdatePosition();
+            bone.Constrain();
         }
     }
 }
