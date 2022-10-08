@@ -2,6 +2,7 @@ using LiteNetLib.Utils;
 using static Packets;
 using static NetworkData;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class PacketReader
 {
@@ -25,6 +26,10 @@ public class PacketReader
             case PacketType.WorldData:
                 packetReader.HandleWorldData(packet, sender);
                 break;
+
+            case PacketType.GlobalSceneSwitch:
+                packetReader.HandleGlobalSceneSwitch(packet, sender);
+                break;
         }
     }
 
@@ -46,7 +51,10 @@ public class PacketReader
                 playerName = packet.GetString()
             };
             if (playerData.playerName == LobbyManager.PlayerName)
+            {
                 LobbyManager.self.clientID = playerData.playerId;
+                LobbyManager.self.inLobby = true;
+            }
             LobbyManager.connectedPlayers.Add(playerData.playerName, playerData);
         }
     }
@@ -61,9 +69,9 @@ public class PacketReader
             int layerHeight = packet.GetInt();
             byte layerLevel = packet.GetByte();
             Tile[,] layerTiles = new Tile[layerWidth, layerHeight];
-            for (int x = 0; x < generationLayers[i].width; x++)
+            for (int x = 0; x < layerWidth; x++)
             {
-                for (int y = 0; y < generationLayers[i].height; y++)
+                for (int y = 0; y < layerHeight; y++)
                 {
                     layerTiles[x, y] = Tile.CreateTile(packet.GetByte(), x, y);
                 }
@@ -73,5 +81,11 @@ public class PacketReader
         }
 
         MapGenerator.LoadWorld(generationLayers);
+    }
+
+    private void HandleGlobalSceneSwitch(NetDataReader packet, byte sender)
+    {
+        string sceneName = packet.GetString();
+        SceneManager.LoadScene(sceneName);
     }
 }

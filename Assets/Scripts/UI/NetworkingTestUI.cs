@@ -1,35 +1,62 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class NetworkingTestUI : MonoBehaviour
 {
-    public GameObject nameTextObj;
-    public GameObject lobbyTextObj;
-    public GameObject ipTextObj;
+    public GameObject startButton;
+    public TextMeshProUGUI playerText;
 
-    public InputField nameText;
-    public InputField lobbyKeyText;
-    public InputField ipText;
+    private string insertedName;
+    private string insertedKey;
+    private string insertedIP;
 
-    public void Start()
+    public void Update()
     {
-        nameText = nameTextObj.GetComponent<InputField>();
-        lobbyKeyText = lobbyTextObj.GetComponent<InputField>();
-        ipText = ipTextObj.GetComponent<InputField>();
+        if (!LobbyManager.self.inLobby)
+            return;
+
+        string testText = "Players: ";
+        string[] playerKeys = LobbyManager.connectedPlayers.Keys.ToArray();
+        for (int i = 0; i < LobbyManager.connectedPlayers.Count; i++)
+        {
+            testText += LobbyManager.connectedPlayers[playerKeys[i]].playerName + ", ";
+        }
+        playerText.text = testText;
     }
 
     public void LobbyButtonClicked()
     {
-        LobbyManager.PlayerName = nameText.text;
-        LobbyManager.CreateLobby(lobbyKeyText.text);
+        LobbyManager.PlayerName = insertedName;
+        LobbyManager.CreateLobby(insertedKey);
+        startButton.transform.localPosition = new Vector3(260, -183, 0);
     }
 
     public void JoinButtonClicked()
     {
-        LobbyManager.PlayerName = nameText.text;
-        LobbyManager.AttemptJoin(ipText.text, lobbyKeyText.text);
+        LobbyManager.PlayerName = insertedName;
+        LobbyManager.AttemptJoin(insertedIP, insertedKey);
+    }
+
+    public void NameInsterted(string input)
+    {
+        insertedName = input;
+    }
+
+    public void LobbyKeyInserted(string input)
+    {
+        insertedKey = input;
+    }
+
+    public void IPInserted(string input)
+    {
+        insertedIP = input;
+    }
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("MultiplayerTest");
+        SyncCall.SyncSceneSwitch("MultiplayerTest");
     }
 }

@@ -10,7 +10,12 @@ public class Client
     public NetPeer netPeer;
     public NetManager netManager;
     public EventBasedNetListener netListener;
+    /// <summary>
+    /// Your "ID." This value is used to communicate who in the players dictionary sent a packet, without having to send around an 8-byte string as a hint.
+    /// </summary>
     public byte clientID;
+    public bool serverOwner;        //Whether or not you're the owner
+    public bool inLobby;
 
     public Client()
     {
@@ -30,6 +35,23 @@ public class Client
         netManager.UpdateTime = 15;
         netManager.EnableStatistics = true;
         netManager.Start();
+        serverOwner = false;
+    }
+
+    public void ReInitalizeAsServer()
+    {
+        netListener = new EventBasedNetListener();
+        netListener.NetworkReceiveEvent += PacketReceived;
+        netListener.PeerConnectedEvent += PeerConnected;
+        netListener.PeerDisconnectedEvent += PeerDisconnected;
+        netListener.ConnectionRequestEvent += ConnectionRequestReceived;
+        PacketReader.packetReader = new PacketReader();
+        netManager = new NetManager(netListener);
+        netManager.NatPunchEnabled = false;
+        netManager.UpdateTime = 15;
+        netManager.EnableStatistics = true;
+        netManager.Start(LobbyManager.LobbyPort);
+        serverOwner = true;
     }
 
     public void Update()
@@ -37,6 +59,13 @@ public class Client
         netManager.PollEvents();
     }
 
+    /// <summary>
+    /// Attemps to join the lobby with the given parameters.
+    /// </summary>
+    /// <param name="ip">The IP.</param>
+    /// <param name="port">The port.</param>
+    /// <param name="requestKey">The key to the lobby. This value serves as the lobby's "password."</param>
+    /// <param name="playerName">The player's (your) name.</param>
     public static void AttemptJoinLobby(string ip, int port, string requestKey, string playerName)
     {
         NetDataWriter writer = new NetDataWriter();

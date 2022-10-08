@@ -9,7 +9,13 @@ using static Packets;
 /// </summary>
 public static class SyncCall
 {
-    public static void SyncObjectCreation(byte objectType, Vector3 objectPosition, Vector3 objectRotation)
+    /// <summary>
+    /// Unimplemented. Does not work.
+    /// </summary>
+    /// <param name="objectType"></param>
+    /// <param name="objectPosition"></param>
+    /// <param name="objectRotation"></param>
+    /*public static void SyncObjectCreation(byte objectType, Vector3 objectPosition, Vector3 objectRotation)
     {
         NetDataWriter message = new NetDataWriter(true, 27);
         message.Put((byte)PacketType.ObjectCreation);
@@ -23,8 +29,11 @@ public static class SyncCall
         message.Put(objectRotation.z);
 
         SendMessageToAllOthers(message, DeliveryMethod.ReliableUnordered);
-    }
+    }*/
 
+    /// <summary>
+    /// Brings the entire lobby in sync with each other in terms of the IDs, names, and amount of people in the lobby. Should only ever be called by the server owner.
+    /// </summary>
     public static void SyncLobbyPlayers()
     {
         NetDataWriter message = new NetDataWriter(true);
@@ -35,15 +44,19 @@ public static class SyncCall
         string[] playerKeys = LobbyManager.connectedPlayers.Keys.ToArray();
         for (int i = 0; i < LobbyManager.connectedPlayers.Count; i++)
         {
-            message.Put(i);
+            message.Put((byte)i);
             message.Put(playerKeys[i]);
         }
         SendMessageToAllOthers(message);
     }
 
+    /// <summary>
+    /// Syncs the world with all other players.
+    /// </summary>
+    /// <param name="generationLayers"></param>
     public static void SyncWorld(GenerationLayer[] generationLayers)
     {
-        NetDataWriter message = new NetDataWriter(true, 27);
+        NetDataWriter message = new NetDataWriter(true);
         message.Put((byte)PacketType.WorldData);
         message.Put(LobbyManager.self.clientID);
 
@@ -61,6 +74,20 @@ public static class SyncCall
                 }
             }
         }
+        SendMessageToAllOthers(message);
+    }
+
+    /// <summary>
+    /// Syncs a scene switch with all other players. The scene name input into the sceneName parameter will be what the scene switches to.
+    /// </summary>
+    /// <param name="sceneName">The scene to switch to.</param>
+    public static void SyncSceneSwitch(string sceneName)
+    {
+        NetDataWriter message = new NetDataWriter(true, 10);
+        message.Put((byte)PacketType.GlobalSceneSwitch);
+        message.Put(LobbyManager.self.clientID);
+
+        message.Put(sceneName);
         SendMessageToAllOthers(message);
     }
 
