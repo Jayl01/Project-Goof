@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
@@ -35,44 +36,18 @@ public class MapGenerator : MonoBehaviour
 
     private static MapGenerator mapGenerator;
 
-    public void UpdateActiveChunk(Vector2 position, bool forced = false)
-    {
-        if (Vector2.Distance(lastChunkPos, position) >= 5f || forced)
-        {
-            lastChunkPos = position;
-            CubeTile[] mapTiles = mapContainer.GetComponentsInChildren<CubeTile>();
-            foreach (CubeTile tile in mapTiles)
-                Destroy(tile.gameObject);
-        }
-    }
-
-    // Start is called before the first frame update
     public void Start()
     {
-        //CreateWorld();
         mapGenerator = this;
-        Vector3 playerSpawn = new Vector3(playerSpawnPoint.X, 2, playerSpawnPoint.Y);
-        //Player.player.SetPosition(playerSpawn);
-        DontDestroyOnLoad(this);
-        //UpdateActiveChunk(Player.player.topDownPos, true);
-        CreateWorld(mapWidth, mapHeight);
+        if (LobbyManager.self.serverOwner)
+            CreateWorld(mapWidth, mapHeight);
     }
 
-    public void CreateMap()
-    {
-        //CreateWorld();
-
-        Vector3 playerSpawn = new Vector3(playerSpawnPoint.X, 2, playerSpawnPoint.Y);
-        //Player.player.SetPosition(playerSpawn);
-    }
-
-    // Update is called once per frame
-    public void Update()
-    {
-        //if (allChecksCompleted)
-        //UpdateActiveChunk(Player.player.topDownPos);
-    }
-
+    /// <summary>
+    /// Creates a world.
+    /// </summary>
+    /// <param name="mapWidth">The "width" of the map when seen in a top-down perspective.</param>
+    /// <param name="mapHeight">The "height" of the map when seen in a top-down perspective.</param>
     public void CreateWorld(int mapWidth, int mapHeight)
     {
         worldRand = new System.Random();
@@ -82,20 +57,25 @@ public class MapGenerator : MonoBehaviour
         generationDetails = new GenerationDetails(new byte[1] { Tile.Wall }, new int[1] { 100 });
         GenerationLayer lowerWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 2);
         GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
-        GenerationLayer[] worldLayers = new GenerationLayer[2] { floorLayer, lowerWallLayer};
+        GenerationLayer[] worldLayers = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
         ConvertLayersTo3D(worldLayers);
+        SyncCall.SyncWorld(worldLayers);
     }
 
+    /// <summary>
+    /// Loads a world with the given data.
+    /// </summary>
     public static void LoadWorld(GenerationLayer[] layers)
     {
         mapGenerator.ConvertLayersTo3D(layers);
     }
 
-    public bool CheckForOOB(Point point, bool createWorld = true)
-    {
-        bool outOfBounds = point.X < 0 || point.X >= MapWidth || point.Y < 0 || point.Y >= MapHeight;
-        return outOfBounds;
-    }
+    /// <summary>
+    /// Checks if the given point is out of the bounds of the map.
+    /// </summary>
+    /// <param name="point">The point</param>
+    /// <returns>Whether or not the point is out of the bounds of the map.</returns>
+    public bool CheckForOOB(Point point) => point.X < 0 || point.X >= MapWidth || point.Y < 0 || point.Y >= MapHeight;
 
     public Tile[,] CreateSquareArea(int area, Point roomCenter, Tile[,] tiles, GenerationDetails details, Tile.GenerationID generationID)
     {

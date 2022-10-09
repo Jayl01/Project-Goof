@@ -5,6 +5,7 @@ public static class Packets
         Introduction,
         ObjectCreation,
         LobbyPlayerSync,
-        WorldData
+        WorldData,
+        GlobalSceneSwitch
     }
 }
