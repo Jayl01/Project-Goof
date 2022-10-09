@@ -38,7 +38,7 @@ that way the bone class will just call all of these constraints that are attache
 //this should be attached to each moving bone in armature
 public class Bone : MonoBehaviour
 {
-    Vector3 netForce, vel;
+    public Vector3 netForce, vel;
 
     [SerializeField]
     public float mass = 1;
@@ -87,16 +87,29 @@ public class Bone : MonoBehaviour
         transform.position = transform.position + vel * Time.fixedDeltaTime;
     }
     public Vector3 GetPredictedPosition(){
-        return transform.position + vel * Time.fixedDeltaTime;
+        return transform.position + (vel * Time.fixedDeltaTime);
     }
-// this should only be called once per frame after all the force calculations have been calculated
+    public void SetPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+    public void AddPosition(Vector3 position)
+    {
+        transform.position += position;
+    }
+    // this should only be called once per frame after all the force calculations have been calculated
     public void UpdateVelocity(){
-        vel += netForce * massInv;
+        vel += netForce * massInv * Time.fixedDeltaTime;
+        // temporary resistance force
+        vel *= 0.99f;
     }
 
 // only to be used for debugging, otherwise use add force so mass calculations are involved
     public void AddVelocity(Vector3 velocity){
         vel += velocity;
+    }
+    public void setVelocity(Vector3 velocity) { 
+        vel = velocity;
     }
 
     public void Constrain(){

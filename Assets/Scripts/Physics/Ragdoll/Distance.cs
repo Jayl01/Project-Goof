@@ -9,7 +9,9 @@ public class Distance : MonoBehaviour, Constraint {
     float targetDistance =-1;
 
     [Range(0, 1)]
-    public float dampening;
+    public float dampening = 1;
+
+    float myMass, targetMass, totalMass;
 
     void Awake()
     {
@@ -26,6 +28,9 @@ public class Distance : MonoBehaviour, Constraint {
         }
         myBone = transform.GetComponent<Bone>();
         targetBone = target.GetComponent<Bone>();
+        myMass = myBone.mass;
+        targetMass = targetBone.mass;
+        totalMass = myMass + targetMass;
         if(targetDistance == -1){
             targetDistance = (target.position - transform.position).magnitude;
         }
@@ -33,12 +38,15 @@ public class Distance : MonoBehaviour, Constraint {
 
 // does not deal with mass right now
     public void Work(){
-        Vector3 offset = target.position - transform.position;
-        float distance = offset.magnitude;
-        float correction = (targetDistance - distance)/2;
-        myBone.AddVelocity(offset * correction * -1);
-        targetBone.AddVelocity(offset * correction);
-
+        Vector3 offset = targetBone.GetPredictedPosition() - myBone.GetPredictedPosition();
+        Vector3 correction = offset - (offset.normalized * targetDistance);
+        myBone.AddPosition(correction * targetBone.mass/totalMass);
+        targetBone.AddPosition(correction * myBone.mass/totalMass * -1);
+        Vector3 myVelInDir = Vector3.Dot(myBone.vel, offset.normalized) * offset.normalized;
+        Vector3 targetVelInDir = Vector3.Dot(targetBone.vel, offset.normalized) * offset.normalized;
+        Vector3 combinedVelInDir = (myMass * myVelInDir + targetMass * targetVelInDir) / (myMass + targetMass);
+        myBone.AddVelocity(combinedVelInDir - myVelInDir);
+        targetBone.AddVelocity(combinedVelInDir - targetVelInDir);
 
     }
 }
