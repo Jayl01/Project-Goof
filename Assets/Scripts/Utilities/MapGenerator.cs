@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,22 +13,15 @@ public class MapGenerator : MonoBehaviour
     public static bool queuedChunkUpdate = false;
     public static bool allChecksCompleted = false;
 
-    public const int MapWidth = 600;
-    public const int MapHeight = 600;
-    private const int MinimumRoomSize = 12;
-    private const int MaximumRoomSize = 20;
-    private const int MaxConnectedHallways = 2;
-    private const int MinimumRoomSpreadDistance = MaximumRoomSize + 4;
+    public int mapWidth = 80;
+    public int mapHeight = 80;
+    public int minimumAmountOfRooms = 8;
+    public int maximumAmountOfRooms = 14;
+    public int minimumRoomSize = 12;
+    public int maximumRoomSize = 20;
+    public int maxHallwaysPerRoom = 2;
+    public int minimumRoomSpreadDistance = 24;      //Should be maximumRoomSize + any number
 
-    private const int MinRooms = 32;
-    private const int MaxRooms = 48;
-
-    public static int ChunkSize = 24;
-    public static int AmountOfLights = 0;
-
-    public int mapWidth;
-    public int mapHeight;
-    public int amountOfRooms;
     public GameObject mapContainer;
 
     public GameObject floorTile;
@@ -35,11 +30,17 @@ public class MapGenerator : MonoBehaviour
     public GenerationDetails generationDetails;
 
     private static MapGenerator mapGenerator;
+    private Point[] spawnPoints;
 
     public void Start()
     {
         mapGenerator = this;
-        if (LobbyManager.self.serverOwner)
+        if (LobbyManager.self != null)
+        {
+            if (LobbyManager.self.serverOwner)
+                CreateWorld(mapWidth, mapHeight);
+        }
+        else
             CreateWorld(mapWidth, mapHeight);
     }
 
@@ -59,7 +60,16 @@ public class MapGenerator : MonoBehaviour
         GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
         GenerationLayer[] worldLayers = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
         ConvertLayersTo3D(worldLayers);
-        SyncCall.SyncWorld(worldLayers);
+        if (LobbyManager.self != null)
+            SyncCall.SyncWorld(worldLayers);
+
+        Point[] spawnPoints = new Point[LobbyManager.GetAmountOfPlayersInLobby()];
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            spawnPoints[i] = new Point(worldRand.Next(0, mapWidth), worldRand.Next(0, mapHeight));
+        }
+        SpawnPlayers(spawnPoints);
+        SyncCall.SyncSpawnPoints(spawnPoints);
     }
 
     /// <summary>
@@ -70,12 +80,20 @@ public class MapGenerator : MonoBehaviour
         mapGenerator.ConvertLayersTo3D(layers);
     }
 
+    public static void SpawnPlayers(Point[] spawnPoints)
+    {
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            Instantiate(Resources.Load("StickFigure") as GameObject, new Vector3(spawnPoints[i].X, 2, spawnPoints[i].Y), Quaternion.identity);
+        }
+    }
+
     /// <summary>
     /// Checks if the given point is out of the bounds of the map.
     /// </summary>
     /// <param name="point">The point</param>
     /// <returns>Whether or not the point is out of the bounds of the map.</returns>
-    public bool CheckForOOB(Point point) => point.X < 0 || point.X >= MapWidth || point.Y < 0 || point.Y >= MapHeight;
+    public bool CheckForOOB(Point point) => point.X < 0 || point.X >= mapWidth || point.Y < 0 || point.Y >= mapHeight;
 
     public Tile[,] CreateSquareArea(int area, Point roomCenter, Tile[,] tiles, GenerationDetails details, Tile.GenerationID generationID)
     {
@@ -107,18 +125,18 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        int amountOfRooms = worldRand.Next(MinRooms, MaxRooms + 1);
+        int amountOfRooms = worldRand.Next(minimumAmountOfRooms, maximumAmountOfRooms + 1);
         Rectangle[] rooms = new Rectangle[amountOfRooms];
         Point[] roomCenters = new Point[amountOfRooms];
         for (int i = 0; i < amountOfRooms; i++)
         {
-            int roomCenterX = worldRand.Next(2 + (MinimumRoomSize / 2), width - (MinimumRoomSize / 2) - 2);
-            int roomCenterY = worldRand.Next(2 + (MaximumRoomSize / 2), height - (MaximumRoomSize / 2) - 2);
+            int roomCenterX = worldRand.Next(2 + (minimumRoomSize / 2), width - (minimumRoomSize / 2) - 2);
+            int roomCenterY = worldRand.Next(2 + (maximumRoomSize / 2), height - (maximumRoomSize / 2) - 2);
             roomCenters[i] = new Point(roomCenterX, roomCenterY);
             if (i == 0)
                 playerSpawnPoint = roomCenters[i];
 
-            int roomSize = worldRand.Next(MinimumRoomSize, MaximumRoomSize + 1);
+            int roomSize = worldRand.Next(minimumRoomSize, maximumRoomSize + 1);
 
             bool stopRoomGeneration = false;
             rooms[i] = new Rectangle(roomCenters[i], new Point(roomSize));
@@ -130,7 +148,7 @@ public class MapGenerator : MonoBehaviour
                     break;       //just abort creation, let's not deal with overlaps for the funnies.
                 }
 
-                if (Vector2.Distance(roomCenters[i].ToVector2(), roomCenters[j].ToVector2()) < MinimumRoomSpreadDistance)
+                if (Vector2.Distance(roomCenters[i].ToVector2(), roomCenters[j].ToVector2()) < minimumRoomSpreadDistance)
                 {
                     stopRoomGeneration = true;
                     break;
@@ -162,7 +180,7 @@ public class MapGenerator : MonoBehaviour
             if (roomCenters[i] == Point.Zero)
                 continue;
 
-            if (roomHallways[i] >= MaxConnectedHallways)
+            if (roomHallways[i] >= maxHallwaysPerRoom)
                 continue;
 
             if (connectionStyle == 0)
@@ -595,11 +613,11 @@ public class MapGenerator : MonoBehaviour
     /// Returns the index of the closest room.
     /// </summary>
     /// <returns></returns>
-    public static int FindClosestRoom(Point roomCenter, Point[] roomCenters, int[] roomHallwayCounts)
+    public int FindClosestRoom(Point roomCenter, Point[] roomCenters, int[] roomHallwayCounts)
     {
         int closestRoomIndex = 0;
 
-        int closestDistance = MapWidth;
+        int closestDistance = mapWidth;
         for (int i = 0; i < roomCenters.Length; i++)
         {
             if (roomCenters[i] == Point.Zero || roomCenters[i] == roomCenter)
@@ -622,14 +640,14 @@ public class MapGenerator : MonoBehaviour
 
     public static void ScreenshotMap(GenerationLayer generationLayer)
     {
-        Texture2D dungeonResultOverviewTexture = new Texture2D(MapWidth, MapHeight);
-        Color32[] resultData = new Color32[MapWidth * MapHeight];
-        for (int x = 0; x < MapWidth; x++)
+        Texture2D dungeonResultOverviewTexture = new Texture2D(mapGenerator.mapWidth, mapGenerator.mapHeight);
+        Color32[] resultData = new Color32[mapGenerator.mapWidth * mapGenerator.mapHeight];
+        for (int x = 0; x < mapGenerator.mapWidth; x++)
         {
-            for (int y = 0; y < MapHeight; y++)
+            for (int y = 0; y < mapGenerator.mapHeight; y++)
             {
                 byte tileType = generationLayer.layerTiles[x, y].tileType;
-                Color32 pixelColor = Color.white;
+                Color32 pixelColor = Color.black;
                 /*if (tileType == Tile.Air)
                 {
                     pixelColor = Color.black;
@@ -658,15 +676,20 @@ public class MapGenerator : MonoBehaviour
                 {
                     pixelColor = new Color32(128, 0, 128, 255);
                 }*/
+                if (tileType == Tile.Dirt)
+                    pixelColor = Color.red;
+                else if (tileType == Tile.Wall)
+                    pixelColor = Color.blue;
 
-                resultData[x + y * MapHeight] = pixelColor;
+
+                resultData[x + y * mapGenerator.mapHeight] = pixelColor;
             }
         }
         dungeonResultOverviewTexture.SetPixels32(resultData, 0);
         dungeonResultOverviewTexture.Apply();
 
         byte[] image = dungeonResultOverviewTexture.EncodeToPNG();
-        string directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/DungeonScreenshots";
+        string directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/ProjectGoofScreenshots";
         if (!Directory.Exists(directory))
             Directory.CreateDirectory(directory);
 
@@ -686,6 +709,39 @@ public class MapGenerator : MonoBehaviour
 
     private void ConvertLayersTo3D(GenerationLayer[] generationLayers)
     {
+        /*for (int i = 0; i < generationLayers.Length; i++)
+        {
+            Dictionary<Point, bool> ignoreTile = new Dictionary<Point, bool>();
+            for (int x = 0; x < generationLayers[i].width; x++)
+            {
+                for (int y = 0; y < generationLayers[i].height; y++)
+                {
+                    if (!ignoreTile.ContainsKey(new Point(x, y)) && generationLayers[i].layerTiles[x, y].tileType != Tile.Air)
+                    {
+                        Vector3 areaArea = GetSurroundingTileArea(generationLayers[i], new Point(x, y));        //The entire rect size and position of the area.
+                        Vector2 areaCenter = (new Point(x, y) + new Point((int)areaArea.x / 2, (int)areaArea.z / 2)).ToVector2();
+                        GameObject tile = Instantiate(GetTileTypeEquivalent(generationLayers[i].layerTiles[x, y].tileType), mapContainer.transform);
+                        tile.transform.position = new Vector3(areaCenter.x, generationLayers[i].layerLevel, areaCenter.y);
+                        tile.transform.localScale = new Vector3(Math.Abs(areaArea.x), areaArea.y, Math.Abs(areaArea.z));
+                        Point[] includedPoints = GetSurroundingTileAreaPoints(generationLayers[i], new Point(x, y));
+                        /*for (int j = 0; j < includedPoints.Length; j++)
+                        {
+                            if (!ignoreTile.ContainsKey(includedPoints[i]))
+                                ignoreTile.Add(includedPoints[i], true);
+                        }*/
+        /*for (int x2 = 0; x2 < areaArea.x; x2++)
+        {
+            for (int y2 = 0; y2 < areaArea.y; y2++)
+            {
+                ignoreTile.Add(new Point(x + x2, y + y2), true);
+            }
+        }
+        //tile.transform.position = new Vector3(x, generationLayers[i].layerLevel + 0.5f, y);
+    }
+}
+}
+}*/
+
         for (int i = 0; i < generationLayers.Length; i++)
         {
             for (int x = 0; x < generationLayers[i].width; x++)
@@ -715,6 +771,102 @@ public class MapGenerator : MonoBehaviour
             default:
                 return null;
         }
+    }
+
+    public Vector3 GetSurroundingTileArea(GenerationLayer generationLayer, Point startPoint)
+    {
+        List<Point> tilesToSearch = new List<Point>() { startPoint };
+        Dictionary<Point, bool> tileScanned = new Dictionary<Point, bool>();
+        List<Point> validTiles = new List<Point>();
+        Point endPoint = Point.Zero;
+
+        for (int i = 0; i < tilesToSearch.Count; i++)       //Recursion method
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                Point checkPoint = tilesToSearch[i] + CheckIndexToUnitPoint(j);
+                if (tileScanned.ContainsKey(checkPoint))
+                    continue;
+
+                tileScanned.Add(checkPoint, true);
+                if (generationLayer.layerTiles[tilesToSearch[i].X, tilesToSearch[i].Y].tileType == generationLayer.layerTiles[checkPoint.X, checkPoint.Y].tileType)
+                {
+                    if (generationLayer.layerTiles[tilesToSearch[i].X, tilesToSearch[i].Y].generationID == generationLayer.layerTiles[checkPoint.X, checkPoint.Y].generationID)
+                    {
+                        validTiles.Add(checkPoint);
+                        tilesToSearch.Add(checkPoint);
+                    }
+                }
+
+                if (tilesToSearch.Count == 1)
+                    endPoint = checkPoint;      //Or it might be more accurate to make a "farthest away" check
+            }
+            if (!tileScanned.ContainsKey(tilesToSearch[i]))
+                tileScanned.Add(tilesToSearch[i], true);
+            tilesToSearch.RemoveAt(i);
+            i--;
+
+            if (tilesToSearch.Count >= generationLayer.width * generationLayer.height)
+                break;
+        }
+
+        Point[] tilesScanned = validTiles.ToArray();
+        float farthestDist = 1f;
+        for (int i = 0; i < tilesScanned.Length; i++)
+        {
+            float dist = Vector2.Distance(startPoint.ToVector2(), tilesScanned[i].ToVector2());
+            if (dist > farthestDist)
+            {
+                farthestDist = dist;
+                endPoint = tilesScanned[i];
+            }
+        }
+
+
+        Vector2 area = (startPoint - endPoint).ToVector2();
+        return new Vector3(area.x, 1, area.y);
+    }
+
+    public Point[] GetSurroundingTileAreaPoints(GenerationLayer generationLayer, Point startPoint)
+    {
+        List<Point> tilesToSearch = new List<Point>() { startPoint };
+        Dictionary<Point, bool> tileScanned = new Dictionary<Point, bool>();
+
+        for (int i = 0; i < tilesToSearch.Count; i++)       //Recursion method
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                Point checkPoint = tilesToSearch[i] + CheckIndexToUnitPoint(j);
+                if (tileScanned.ContainsKey(checkPoint))
+                    continue;
+
+                tileScanned.Add(checkPoint, true);
+                if (generationLayer.layerTiles[tilesToSearch[i].X, tilesToSearch[i].Y].tileType == generationLayer.layerTiles[checkPoint.X, checkPoint.Y].tileType)
+                    if (generationLayer.layerTiles[tilesToSearch[i].X, tilesToSearch[i].Y].generationID == generationLayer.layerTiles[checkPoint.X, checkPoint.Y].generationID)
+                        tilesToSearch.Add(checkPoint);
+            }
+            if (!tileScanned.ContainsKey(tilesToSearch[i]))
+                tileScanned.Add(tilesToSearch[i], true);
+            tilesToSearch.RemoveAt(i);
+            i--;
+
+            if (tilesToSearch.Count >= generationLayer.width * generationLayer.height)
+                break;
+        }
+
+        return tileScanned.Keys.ToArray();
+    }
+
+    public Point CheckIndexToUnitPoint(int checkNumber)
+    {
+        if (checkNumber == 0)
+            return Point.Up;
+        else if (checkNumber == 1)
+            return Point.Right;
+        else if (checkNumber == 2)
+            return Point.Down;
+        else
+            return Point.Left;
     }
 
     public static bool TypeMatch(int[] types, int type)

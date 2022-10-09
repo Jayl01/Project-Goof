@@ -91,6 +91,21 @@ public static class SyncCall
         SendMessageToAllOthers(message);
     }
 
+    public static void SyncSpawnPoints(Point[] spawnPoints)
+    {
+        NetDataWriter message = new NetDataWriter(true, 10);
+        message.Put((byte)PacketType.SpawnPoints);
+        message.Put(LobbyManager.self.clientID);
+
+        message.Put(spawnPoints.Length);
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            message.Put(spawnPoints[i].X);
+            message.Put(spawnPoints[i].Y);
+        }
+        SendMessageToAllOthers(message);
+    }
+
     /// <summary>
     /// Sends a packet to the passed in peer.
     /// </summary>

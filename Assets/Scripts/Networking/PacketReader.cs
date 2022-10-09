@@ -3,6 +3,7 @@ using static Packets;
 using static NetworkData;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System.Numerics;
 
 public class PacketReader
 {
@@ -29,6 +30,10 @@ public class PacketReader
 
             case PacketType.GlobalSceneSwitch:
                 packetReader.HandleGlobalSceneSwitch(packet, sender);
+                break;
+
+            case PacketType.SpawnPoints:
+                packetReader.HandleSpawnPoints(packet, sender);
                 break;
         }
     }
@@ -87,5 +92,16 @@ public class PacketReader
     {
         string sceneName = packet.GetString();
         SceneManager.LoadScene(sceneName);
+    }
+
+    private void HandleSpawnPoints(NetDataReader packet, byte sender)
+    {
+        int amountOfSpawnpoints = packet.GetInt();
+        Point[] spawnPoints = new Point[amountOfSpawnpoints];
+        for (int i = 0; i < amountOfSpawnpoints; i++)
+        {
+            spawnPoints[i] = new Point(packet.GetInt(), packet.GetInt());
+        }
+        MapGenerator.SpawnPlayers(spawnPoints);
     }
 }

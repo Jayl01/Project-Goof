@@ -7,6 +7,10 @@ public struct Point     //I really have to be implementing basic XNA things!?!
     public int Y;
 
     public static Point Zero = new Point(0, 0);
+    public static Point Up = new Point(0, 1);
+    public static Point Down = new Point(0, -1);
+    public static Point Left = new Point(-1, 0);
+    public static Point Right = new Point(1, 0);
 
     public static bool operator ==(Point a, Point b)
     => a.X == b.X && a.Y == b.Y;
@@ -16,6 +20,9 @@ public struct Point     //I really have to be implementing basic XNA things!?!
 
     public static Point operator +(Point a, Point b)
             => new Point(a.X + b.X, a.Y + b.Y);
+
+    public static Point operator -(Point a, Point b)
+        => new Point(a.X - b.X, a.Y - b.Y);
 
     public Point(int x, int y)
     {

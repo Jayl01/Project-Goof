@@ -366,7 +366,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapWidth: 80
   mapHeight: 80
-  amountOfRooms: 24
+  minimumAmountOfRooms: 8
+  maximumAmountOfRooms: 14
+  minimumRoomSize: 12
+  maximumRoomSize: 20
+  maxHallwaysPerRoom: 2
+  minimumRoomSpreadDistance: 24
   mapContainer: {fileID: 1944998544}
   floorTile: {fileID: 684665400}
   wallTile: {fileID: 1595293113}
