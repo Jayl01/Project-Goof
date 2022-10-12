@@ -113,9 +113,10 @@ public class Bone : MonoBehaviour
     }
 
     public void Constrain(){
-        foreach (Constraint constraint in constraints)
+        foreach (Constraint? constraint in constraints)
         {
-            constraint.Work();
+            if (constraint != null)
+                constraint.Work();
         }
     }
 

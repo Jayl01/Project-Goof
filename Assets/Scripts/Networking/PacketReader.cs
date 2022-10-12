@@ -4,6 +4,7 @@ using static NetworkData;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.Numerics;
+using System;
 
 public class PacketReader
 {
@@ -13,6 +14,7 @@ public class PacketReader
     {
         PacketType packetType = (PacketType)packet.GetByte();
         byte sender = packet.GetByte();
+        Console.WriteLine(packetType);
 
         switch (packetType)
         {
@@ -34,6 +36,10 @@ public class PacketReader
 
             case PacketType.SpawnPoints:
                 packetReader.HandleSpawnPoints(packet, sender);
+                break;
+
+            case PacketType.SpawnSyncMovement:
+                packetReader.HandleMovementSync(packet, sender);
                 break;
         }
     }
@@ -103,5 +109,13 @@ public class PacketReader
             spawnPoints[i] = new Point(packet.GetInt(), packet.GetInt());
         }
         MapGenerator.SpawnPlayers(spawnPoints);
+    }
+
+    private void HandleMovementSync(NetDataReader packet, byte sender)
+    {
+        float xComponent = packet.GetFloat();
+        float yComponent = packet.GetFloat();
+
+        LobbyManager.playerRagdolls[sender].SetMovement(new UnityEngine.Vector2(xComponent, yComponent));
     }
 }

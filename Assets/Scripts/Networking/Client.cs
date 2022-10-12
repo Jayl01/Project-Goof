@@ -96,7 +96,7 @@ public class Client
             request.Accept();
             PlayerData newPlayerData = new PlayerData()
             {
-                playerId = (byte)(LobbyManager.connectedPlayers.Count + 1),
+                playerId = (byte)(LobbyManager.connectedPlayers.Count),
                 playerName = request.Data.GetString()
             };
             LobbyManager.PlayerJoined(newPlayerData);

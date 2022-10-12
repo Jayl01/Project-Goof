@@ -21,7 +21,7 @@ public class NetworkingTestUI : MonoBehaviour
         string[] playerKeys = LobbyManager.connectedPlayers.Keys.ToArray();
         for (int i = 0; i < LobbyManager.connectedPlayers.Count; i++)
         {
-            testText += LobbyManager.connectedPlayers[playerKeys[i]].playerName + ", ";
+            testText += LobbyManager.connectedPlayers[playerKeys[i]].playerName + " (" + LobbyManager.connectedPlayers[playerKeys[i]].playerId + "), ";
         }
         playerText.text = testText;
     }
