@@ -107,7 +107,7 @@ public static class SyncCall
         SendMessageToAllOthers(message);
     }
 
-    public static void SyncMovement(Vector3 movement)
+    public static void SyncMovement(UnityEngine.Vector3 movement)
     {
         NetDataWriter message = new NetDataWriter(true, 10);
         message.Put((byte)PacketType.SpawnSyncMovement);

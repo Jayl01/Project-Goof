@@ -162,16 +162,15 @@ public class Bone : MonoBehaviour
 
     void MaintainForm(int num)
     {
-        //has max iterations of 20
+        //has max iterations of 5
         if (num < 5)
         {
-            Debug.Log($"Working on maintaining form");
+            // Debug.Log($"Working on maintaining form");
             for (int i = 0; i < affected.Count; i++)
             {
                 Vector3 correction, direction = correction = affected[i].GetPosition() - this.GetPosition();
                 direction.Normalize();
                 correction -= (direction * targetDistances[i]);
-                // flip stuff around to avoid negative
                 this.Translate(correction * 0.5f);
                 affected[i].Translate(correction * -0.5f);
                 if (correction.magnitude > 0.1f)
@@ -181,7 +180,7 @@ public class Bone : MonoBehaviour
             }
         }
         else{
-            Debug.Log($"reached max iterations of 5");
+            // Debug.Log($"reached max iterations of 5");
         }
     }
 
@@ -227,10 +226,13 @@ public class Bone : MonoBehaviour
     }
 
     public void Constrain(){
-        foreach (Constraint? constraint in constraints)
+        if (constraints != null)
         {
-            if (constraint != null)
-                constraint.Work();
+            foreach (Constraint? constraint in constraints)
+            {
+                if (constraint != null)
+                    constraint.Work();
+            }
         }
     }
 

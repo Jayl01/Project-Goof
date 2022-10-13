@@ -10,15 +10,13 @@ public class Ragdoll : MonoBehaviour
 
     [SerializeField]
     Vector3 movement;
-    Vector2 prevMovement;
+    Vector3 prevMovement;
 
     public byte controllerID;
 
     [Range(0.0f, 100.0f)]
     float accuracy = 100.0f;
 
-    [SerializeField]
-    Bone[] bones;
     void Start(){
         accuracy /= 100;
         movement = Vector3.zero;
@@ -39,14 +37,14 @@ public class Ragdoll : MonoBehaviour
     }
 
     public void OnMove(InputValue value){
-        if (controllerID == LobbyManager.self.clientID)
-        {
+        // if (controllerID == LobbyManager.self.clientID)
+        // {
             movement = value.Get<Vector3>();
             if (prevMovement != movement)
             {
                 prevMovement = movement;
                 SyncCall.SyncMovement(movement);
             }
-        }
+        // }
     }
 }
