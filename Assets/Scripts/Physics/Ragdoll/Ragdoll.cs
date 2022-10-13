@@ -14,11 +14,13 @@ public class Ragdoll : MonoBehaviour
 
     public byte controllerID;
 
-    [Range(0.0f, 100.0f)]
-    float accuracy = 100.0f;
+    [SerializeField]
+    int accuracy = 5;
+
+    [SerializeField]
+    float speed = 1, maxSpeed = 100;
 
     void Start(){
-        accuracy /= 100;
         movement = Vector3.zero;
         rootBone = transform.GetChild(0).gameObject.GetComponent<Bone>();
         rootBone.MakeTreeStructure(null);
@@ -27,8 +29,8 @@ public class Ragdoll : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rootBone.SetNetForce(movement * 1000);
-        rootBone.UpdateAll();
+        rootBone.AddVelocity(movement * speed);
+        rootBone.UpdateAll(accuracy, maxSpeed);
     }
 
     public void SetMovement(Vector3 newMove)

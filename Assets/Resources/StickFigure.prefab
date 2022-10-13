@@ -50,8 +50,12 @@ MonoBehaviour:
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
   snapshot: {x: 0, y: 0, z: 0}
-  mass: 1
+  mass: 100
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!1 &357176137161855431
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,6 +107,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624069247249182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203,6 +211,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624070391712630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,6 +282,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624070308827887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -337,6 +353,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624070735406761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,8 +420,12 @@ MonoBehaviour:
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
   snapshot: {x: 0, y: 0, z: 0}
-  mass: 1
+  mass: 5
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!1 &1747725697667663999
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,6 +575,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624069419446697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -618,6 +646,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624070180118195
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -681,8 +713,12 @@ MonoBehaviour:
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
   snapshot: {x: 0, y: 0, z: 0}
-  mass: 1
+  mass: 5
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!1 &4208568292369842039
 GameObject:
   m_ObjectHideFlags: 0
@@ -730,8 +766,12 @@ MonoBehaviour:
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
   snapshot: {x: 0, y: 0, z: 0}
-  mass: 1
+  mass: 5
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!1 &4484174836713215471
 GameObject:
   m_ObjectHideFlags: 0
@@ -783,6 +823,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624070391800488
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -850,6 +894,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624069039956578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -919,6 +967,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624069830919192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -986,6 +1038,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624069936769684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1053,6 +1109,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624070363010318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1116,8 +1176,12 @@ MonoBehaviour:
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
   snapshot: {x: 0, y: 0, z: 0}
-  mass: 50
+  mass: 10
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!1 &7760908607291771754
 GameObject:
   m_ObjectHideFlags: 0
@@ -1165,7 +1229,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement: {x: 0, y: 0, z: 0}
-  bones: []
+  controllerID: 0
+  accuracy: 20
+  speed: 3
+  maxSpeed: 50
 --- !u!114 &725624070831857286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1312,6 +1379,10 @@ MonoBehaviour:
   snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []
 --- !u!114 &725624069440774627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1375,5 +1446,9 @@ MonoBehaviour:
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
   snapshot: {x: 0, y: 0, z: 0}
-  mass: 1
+  mass: 5
   massInv: 0
+  child: {fileID: 0}
+  sibling: {fileID: 0}
+  affected: []
+  targetDistances: []

@@ -103,20 +103,20 @@ public class Bone : MonoBehaviour
         }
     }
 
-    public void UpdateAll(){
+    public void UpdateAll(int accuracy, float maxSpeed){
 
-        UpdateVelocity();
+        UpdateVelocity(maxSpeed);
         UpdatePosition();
         snapshot = GetPosition();
-        MaintainForm(0);
+        MaintainForm(accuracy);
         Constrain();
         if (child != null)
         {
-            child.UpdateAll();
+            child.UpdateAll(accuracy, maxSpeed);
         }
         if (sibling != null)
         {
-            sibling.UpdateAll();
+            sibling.UpdateAll(accuracy, maxSpeed);
         }
     }
 
@@ -160,10 +160,16 @@ public class Bone : MonoBehaviour
         // PhysicsManager.GRAVITY = new Vector3(Random.Range(-10,10), Random.Range(-10,10), Random.Range(-10,10)) * 0.1f;
     }
 
+
+
+    // has the potential bug where depending on which constraint resolves first, the order of constraints will vary
+    // thus the end result could be different per frame. aka a bone switching between different positions
+    // this should only happen if very large difference between masses of bones so shouldn't be a problemm tbh
+    // also adding a change in velocity to preserve momentum should fix this
     void MaintainForm(int num)
     {
         //has max iterations of 5
-        if (num < 5)
+        if (num > 0)
         {
             // Debug.Log($"Working on maintaining form");
             for (int i = 0; i < affected.Count; i++)
@@ -171,11 +177,19 @@ public class Bone : MonoBehaviour
                 Vector3 correction, direction = correction = affected[i].GetPosition() - this.GetPosition();
                 direction.Normalize();
                 correction -= (direction * targetDistances[i]);
-                this.Translate(correction * 0.5f);
-                affected[i].Translate(correction * -0.5f);
-                if (correction.magnitude > 0.1f)
+                float totalMass = this.mass + affected[i].mass;
+                Vector3 thisMove = correction * (affected[i].mass / totalMass);
+                Vector3 otherMove = correction * -1 * (this.mass / totalMass);
+                this.Translate(correction * (affected[i].mass / totalMass));
+                affected[i].Translate(correction * -1 * (this.mass / totalMass));
+                Vector3 myVelInDir = Vector3.Dot(this.vel, direction) * direction;
+                Vector3 targetVelInDir = Vector3.Dot(affected[i].vel, direction) * direction;
+                Vector3 combinedVelInDir = (this.mass * myVelInDir + affected[i].mass * targetVelInDir) / (totalMass);
+                this.AddVelocity(combinedVelInDir - myVelInDir);
+                affected[i].AddVelocity(combinedVelInDir - targetVelInDir);
+                if (thisMove.magnitude > 0.1f || otherMove.magnitude > 0.1f)
                 {
-                    affected[i].MaintainForm(num+1);
+                    affected[i].MaintainForm(num-1);
                 }
             }
         }
@@ -211,8 +225,9 @@ public class Bone : MonoBehaviour
         transform.position += position;
     }
     // this should only be called once per frame after all the force calculations have been calculated
-    public void UpdateVelocity(){
-        vel = (vel + netForce * massInv * Time.fixedDeltaTime) * 0.99f;
+    public void UpdateVelocity(float maxSpeed){
+        // can optimize by storing the sqrMagnitude so I just square root it inside if instead of calling .magnitude 
+        vel = Vector3.ClampMagnitude((vel + netForce * massInv * Time.fixedDeltaTime) * 0.99f, maxSpeed);
         netForce = Vector3.zero;
         //the * 0.99 is temporary resistance force to stop moving forever
     }
