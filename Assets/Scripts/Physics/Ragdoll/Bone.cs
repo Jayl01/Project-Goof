@@ -38,18 +38,106 @@ that way the bone class will just call all of these constraints that are attache
 //this should be attached to each moving bone in armature
 public class Bone : MonoBehaviour
 {
-    public Vector3 netForce, vel;
+    public Vector3 netForce, vel, snapshot;
 
     [SerializeField]
     public float mass = 1;
     public float massInv;
 
+    [SerializeField]
+    Bone child, sibling;
+
+    [SerializeField]
+    List<Bone> affected;
+
+    [SerializeField]
+    List<float> targetDistances;
+
     Constraint[] constraints;
 
+
+
+    public void MakeTreeStructure(Bone parent){
+        affected = new List<Bone>();
+        targetDistances = new List<float>();
+        if (parent != null)
+        {
+            affected.Add(parent);
+            targetDistances.Add((parent.GetPosition() - this.GetPosition()).magnitude);
+        }
+        if (transform.childCount != 0)
+        {
+            child = transform.GetChild(0).gameObject.GetComponent<Bone>();
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                // sets the sibling to the next child over but if its the last child it sets the sibling to null
+                Bone temp = transform.GetChild(i).gameObject.GetComponent<Bone>();
+                temp.sibling = i < transform.childCount - 1 ? transform.GetChild(i + 1).gameObject.GetComponent<Bone>() : null;
+                affected.Add(temp);
+                targetDistances.Add((temp.GetPosition() - this.GetPosition()).magnitude);
+                temp.MakeTreeStructure(this);
+                for (int j = 0; j < transform.childCount; j++){
+                    if(j!=i){
+                        Bone siblingBone = transform.GetChild(j).gameObject.GetComponent<Bone>();
+                        temp.affected.Add(siblingBone);
+                        temp.targetDistances.Add((siblingBone.GetPosition() - temp.GetPosition()).magnitude);
+                    }
+                }
+
+            }
+        }
+        else{
+            child = null;
+        }
+    }
+
+    public void SetParentToAll(Transform newParent){
+        transform.SetParent(newParent);
+        if (child != null)
+        {
+            child.SetParentToAll(newParent);
+        }
+        if (sibling != null)
+        {
+            sibling.SetParentToAll(newParent);
+        }
+    }
+
+    public void UpdateAll(){
+
+        UpdateVelocity();
+        UpdatePosition();
+        snapshot = GetPosition();
+        MaintainForm(0);
+        Constrain();
+        if (child != null)
+        {
+            child.UpdateAll();
+        }
+        if (sibling != null)
+        {
+            sibling.UpdateAll();
+        }
+    }
+
+    // traverse and call method on each node format
+    public void TraverseMethod(){
+        //Do stuff here
+        if (child != null)
+        {
+            child.TraverseMethod();
+        }
+        if (sibling != null)
+        {
+            sibling.TraverseMethod();
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        
+        snapshot = GetPosition();
         netForce = Vector3.zero;
         vel = Vector3.zero;
 
@@ -58,7 +146,6 @@ public class Bone : MonoBehaviour
         massInv = (mass != 0) ? 1/mass : 0;
         List<Constraint> tempConstraints = new List<Constraint>();
         tempConstraints.AddRange(GetComponents<LookTowards>()); 
-        tempConstraints.AddRange(GetComponents<Distance>());
         constraints = tempConstraints.ToArray();
 
 
@@ -73,6 +160,30 @@ public class Bone : MonoBehaviour
         // PhysicsManager.GRAVITY = new Vector3(Random.Range(-10,10), Random.Range(-10,10), Random.Range(-10,10)) * 0.1f;
     }
 
+    void MaintainForm(int num)
+    {
+        //has max iterations of 20
+        if (num < 5)
+        {
+            Debug.Log($"Working on maintaining form");
+            for (int i = 0; i < affected.Count; i++)
+            {
+                Vector3 correction, direction = correction = affected[i].GetPosition() - this.GetPosition();
+                direction.Normalize();
+                correction -= (direction * targetDistances[i]);
+                // flip stuff around to avoid negative
+                this.Translate(correction * 0.5f);
+                affected[i].Translate(correction * -0.5f);
+                if (correction.magnitude > 0.1f)
+                {
+                    affected[i].MaintainForm(num+1);
+                }
+            }
+        }
+        else{
+            Debug.Log($"reached max iterations of 5");
+        }
+    }
 
     public void AddForce(Vector3 force){
         netForce += force;
@@ -84,7 +195,10 @@ public class Bone : MonoBehaviour
 
     public void UpdatePosition()
     {
-        transform.position = transform.position + vel * Time.fixedDeltaTime;
+        transform.position += vel * Time.fixedDeltaTime;
+    }
+    public Vector3 GetPosition(){
+        return transform.position;
     }
     public Vector3 GetPredictedPosition(){
         return transform.position + (vel * Time.fixedDeltaTime);
@@ -93,15 +207,15 @@ public class Bone : MonoBehaviour
     {
         transform.position = position;
     }
-    public void AddPosition(Vector3 position)
+    public void Translate(Vector3 position)
     {
         transform.position += position;
     }
     // this should only be called once per frame after all the force calculations have been calculated
     public void UpdateVelocity(){
-        vel += netForce * massInv * Time.fixedDeltaTime;
-        // temporary resistance force
-        vel *= 0.99f;
+        vel = (vel + netForce * massInv * Time.fixedDeltaTime) * 0.99f;
+        netForce = Vector3.zero;
+        //the * 0.99 is temporary resistance force to stop moving forever
     }
 
 // only to be used for debugging, otherwise use add force so mass calculations are involved
@@ -120,37 +234,36 @@ public class Bone : MonoBehaviour
     }
 
 
-
 // call this from the root bone in order to find every single Bone code in all of its children and their children and so on
-    public List<Bone> FindChildren(){ 
-        // Debug.Log($"Starting find Children from " + ToString());
-        if (transform.childCount > 0)
-        {
-            // Debug.Log($"Found " + transform.childCount + " children from " + ToString());
-            List<Bone> children = new List<Bone>();
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                children.Add(transform.GetChild(i).gameObject.GetComponent<Bone>());
-                if (children[children.Count -1] != null)
-                {
-                    // Debug.Log(children[children.Count -1].ToString() + " HAS BONE CODE (from " + ToString() + ")");
-                    List<Bone> temp = children[children.Count -1].FindChildren();
-                    if (temp != null)
-                    {
-                        children.AddRange(temp);
-                    }
-                }
-                else
-                {
-                    // Debug.Log($"uhm you probably messed up because "+ transform.GetChild(i).ToString() + "does not have a Bone component.");
-                }
-            }
+    // public List<Bone> FindChildren(){ 
+    //     // Debug.Log($"Starting find Children from " + ToString());
+    //     if (transform.childCount > 0)
+    //     {
+    //         // Debug.Log($"Found " + transform.childCount + " children from " + ToString());
+    //         List<Bone> children = new List<Bone>();
+    //         for (int i = 0; i < transform.childCount; i++)
+    //         {
+    //             children.Add(transform.GetChild(i).gameObject.GetComponent<Bone>());
+    //             if (children[children.Count -1] != null)
+    //             {
+    //                 // Debug.Log(children[children.Count -1].ToString() + " HAS BONE CODE (from " + ToString() + ")");
+    //                 List<Bone> temp = children[children.Count -1].FindChildren();
+    //                 if (temp != null)
+    //                 {
+    //                     children.AddRange(temp);
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 // Debug.Log($"uhm you probably messed up because "+ transform.GetChild(i).ToString() + "does not have a Bone component.");
+    //             }
+    //         }
 
-            return children;
-        }
-        // Debug.Log($"this " + ToString() + "mfer is lonely had no one to make children with");
-        return null;
-    }
+    //         return children;
+    //     }
+    //     // Debug.Log($"this " + ToString() + "mfer is lonely had no one to make children with");
+    //     return null;
+    // }
 
     //@Todo: THIS IS WRONG RIGHT NOW BUT GO FIX THIS
     

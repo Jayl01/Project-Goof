@@ -10,9 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4287742033980168930}
   - component: {fileID: 725624069443686379}
-  - component: {fileID: 725624069443686384}
-  - component: {fileID: 725624069443686386}
-  - component: {fileID: 725624069443686387}
   m_Layer: 0
   m_Name: root
   m_TagString: Untagged
@@ -52,53 +49,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
---- !u!114 &725624069443686384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 25475422967484040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 996304021422548331}
-  targetDistance: -1
-  dampening: 1
---- !u!114 &725624069443686386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 25475422967484040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 5425214111567887699}
-  targetDistance: -1
-  dampening: 1
---- !u!114 &725624069443686387
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 25475422967484040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 2095474029491099653}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &357176137161855431
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,7 +63,6 @@ GameObject:
   - component: {fileID: 9028069431774373326}
   - component: {fileID: 725624069247249180}
   - component: {fileID: 725624069247249182}
-  - component: {fileID: 725624069247249183}
   m_Layer: 0
   m_Name: rHand
   m_TagString: Untagged
@@ -148,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624069247249182
@@ -166,21 +119,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624069247249183
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 357176137161855431}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &491040718467959556
 GameObject:
   m_ObjectHideFlags: 0
@@ -225,7 +163,6 @@ GameObject:
   - component: {fileID: 6050967920848799403}
   - component: {fileID: 725624070391712628}
   - component: {fileID: 725624070391712630}
-  - component: {fileID: 725624070391712631}
   m_Layer: 0
   m_Name: rElbow
   m_TagString: Untagged
@@ -263,6 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624070391712630
@@ -281,21 +219,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624070391712631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 545728312131138507}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &1162222691519785286
 GameObject:
   m_ObjectHideFlags: 0
@@ -307,7 +230,6 @@ GameObject:
   - component: {fileID: 6193102034922860222}
   - component: {fileID: 725624070308827885}
   - component: {fileID: 725624070308827887}
-  - component: {fileID: 725624070308827880}
   m_Layer: 0
   m_Name: lFoot
   m_TagString: Untagged
@@ -345,6 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624070308827887
@@ -363,21 +286,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624070308827880
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1162222691519785286}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &1588670061268183142
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,7 +297,6 @@ GameObject:
   - component: {fileID: 996304021422548331}
   - component: {fileID: 725624070735406767}
   - component: {fileID: 725624070735406761}
-  - component: {fileID: 725624070735406762}
   m_Layer: 0
   m_Name: lowerSpine
   m_TagString: Untagged
@@ -427,6 +334,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624070735406761
@@ -445,21 +353,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624070735406762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1588670061268183142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &1670867096244314533
 GameObject:
   m_ObjectHideFlags: 0
@@ -506,6 +399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!1 &1747725697667663999
@@ -617,7 +511,6 @@ GameObject:
   - component: {fileID: 4533306313275253403}
   - component: {fileID: 725624069419446703}
   - component: {fileID: 725624069419446697}
-  - component: {fileID: 725624069419446698}
   m_Layer: 0
   m_Name: rFoot
   m_TagString: Untagged
@@ -655,6 +548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624069419446697
@@ -673,21 +567,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624069419446698
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3135615185447973469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &3724885342793081662
 GameObject:
   m_ObjectHideFlags: 0
@@ -699,7 +578,6 @@ GameObject:
   - component: {fileID: 2659495638629565138}
   - component: {fileID: 725624070180118193}
   - component: {fileID: 725624070180118195}
-  - component: {fileID: 725624070180118204}
   m_Layer: 0
   m_Name: lHand
   m_TagString: Untagged
@@ -737,6 +615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624070180118195
@@ -755,21 +634,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624070180118204
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3724885342793081662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &4016425074530676914
 GameObject:
   m_ObjectHideFlags: 0
@@ -816,6 +680,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!1 &4208568292369842039
@@ -864,6 +729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!1 &4484174836713215471
@@ -877,7 +743,6 @@ GameObject:
   - component: {fileID: 8273768771959244094}
   - component: {fileID: 725624070391800494}
   - component: {fileID: 725624070391800488}
-  - component: {fileID: 725624070391800489}
   m_Layer: 0
   m_Name: neck
   m_TagString: Untagged
@@ -915,6 +780,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624070391800488
@@ -933,21 +799,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624070391800489
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4484174836713215471}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &4847699427204938510
 GameObject:
   m_ObjectHideFlags: 0
@@ -959,7 +810,6 @@ GameObject:
   - component: {fileID: 5425214111567887699}
   - component: {fileID: 725624069039956576}
   - component: {fileID: 725624069039956578}
-  - component: {fileID: 725624069039956579}
   m_Layer: 0
   m_Name: lKnee
   m_TagString: Untagged
@@ -997,6 +847,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624069039956578
@@ -1015,21 +866,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624069039956579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4847699427204938510}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &6092614317136664017
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,9 +877,6 @@ GameObject:
   - component: {fileID: 7293745144999329793}
   - component: {fileID: 725624069830919198}
   - component: {fileID: 725624069830919192}
-  - component: {fileID: 725624069830919195}
-  - component: {fileID: 725624069830919397}
-  - component: {fileID: 725624069830919398}
   m_Layer: 0
   m_Name: upperSpine
   m_TagString: Untagged
@@ -1083,6 +916,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624069830919192
@@ -1101,51 +935,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624069830919195
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6092614317136664017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 8273768771959244094}
-  targetDistance: -1
-  dampening: 1
---- !u!114 &725624069830919397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6092614317136664017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 6050967920848799403}
-  targetDistance: -1
-  dampening: 1
---- !u!114 &725624069830919398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6092614317136664017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 1987760365606720529}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &6758857513148999604
 GameObject:
   m_ObjectHideFlags: 0
@@ -1157,7 +946,6 @@ GameObject:
   - component: {fileID: 1987760365606720529}
   - component: {fileID: 725624069936769674}
   - component: {fileID: 725624069936769684}
-  - component: {fileID: 725624069936769685}
   m_Layer: 0
   m_Name: lElbow
   m_TagString: Untagged
@@ -1195,6 +983,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624069936769684
@@ -1213,21 +1002,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624069936769685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6758857513148999604}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &7157436865732395859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1239,7 +1013,6 @@ GameObject:
   - component: {fileID: 2095474029491099653}
   - component: {fileID: 725624070363010316}
   - component: {fileID: 725624070363010318}
-  - component: {fileID: 725624070363010319}
   m_Layer: 0
   m_Name: rKnee
   m_TagString: Untagged
@@ -1277,6 +1050,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624070363010318
@@ -1295,21 +1069,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624070363010319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7157436865732395859}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &7699185077391935657
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,6 +1115,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 50
   massInv: 0
 --- !u!1 &7760908607291771754
@@ -1512,7 +1272,6 @@ GameObject:
   - component: {fileID: 3199707551480651458}
   - component: {fileID: 725624069440774625}
   - component: {fileID: 725624069440774627}
-  - component: {fileID: 725624069440774636}
   m_Layer: 0
   m_Name: head
   m_TagString: Untagged
@@ -1550,6 +1309,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
 --- !u!114 &725624069440774627
@@ -1568,21 +1328,6 @@ MonoBehaviour:
   rollTarget: {fileID: 0}
   lookDampening: 0
   rollDampening: 0
---- !u!114 &725624069440774636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8222550022700691886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df405b98bed8984bb8ce2b4cb80d43a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetDistance: -1
-  dampening: 1
 --- !u!1 &8939853620824730492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1629,5 +1374,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   netForce: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  snapshot: {x: 0, y: 0, z: 0}
   mass: 1
   massInv: 0
