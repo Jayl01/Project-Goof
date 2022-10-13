@@ -1,7 +1,9 @@
 using System.Linq;
 using TMPro;
+using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static NetworkData;
 
 public class NetworkingTestUI : MonoBehaviour
 {
@@ -54,8 +56,13 @@ public class NetworkingTestUI : MonoBehaviour
         insertedIP = input;
     }
 
-    public void StartGame()
+    public void StartGame(bool solo = false)
     {
+        if (solo)
+        {
+            LobbyManager.PlayerName = "Solo";
+            LobbyManager.CreateLobby("Key");
+        }
         SceneManager.LoadScene("MultiplayerTest");
         SyncCall.SyncSceneSwitch("MultiplayerTest");
     }
