@@ -8,5 +8,6 @@ public static class Packets
         WorldData,
         GlobalSceneSwitch,
         SpawnPoints,
+        SpawnSyncMovement
     }
 }

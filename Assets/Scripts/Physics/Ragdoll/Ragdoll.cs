@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 //this should be attached to the armature of playerModel
 public class Ragdoll : MonoBehaviour
@@ -9,6 +10,9 @@ public class Ragdoll : MonoBehaviour
 
     [SerializeField]
     Vector3 movement;
+    Vector2 prevMovement;
+
+    public byte controllerID;
 
     [Range(0.0f, 100.0f)]
     float accuracy = 100.0f;
@@ -28,7 +32,21 @@ public class Ragdoll : MonoBehaviour
         rootBone.SetNetForce(movement * 1000);
         rootBone.UpdateAll();
     }
+
+    public void SetMovement(Vector3 newMove)
+    {
+        movement = newMove;
+    }
+
     public void OnMove(InputValue value){
-        movement = value.Get<Vector3>();
+        if (controllerID == LobbyManager.self.clientID)
+        {
+            movement = value.Get<Vector3>();
+            if (prevMovement != movement)
+            {
+                prevMovement = movement;
+                SyncCall.SyncMovement(movement);
+            }
+        }
     }
 }

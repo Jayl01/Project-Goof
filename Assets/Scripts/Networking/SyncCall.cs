@@ -106,6 +106,17 @@ public static class SyncCall
         SendMessageToAllOthers(message);
     }
 
+    public static void SyncMovement(Vector2 movement)
+    {
+        NetDataWriter message = new NetDataWriter(true, 10);
+        message.Put((byte)PacketType.SpawnSyncMovement);
+        message.Put(LobbyManager.self.clientID);
+
+        message.Put(movement.x);
+        message.Put(movement.y);
+        SendMessageToAllOthers(message);
+    }
+
     /// <summary>
     /// Sends a packet to the passed in peer.
     /// </summary>

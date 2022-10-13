@@ -82,9 +82,14 @@ public class MapGenerator : MonoBehaviour
 
     public static void SpawnPlayers(Point[] spawnPoints)
     {
+        LobbyManager.playerObjects = new GameObject[spawnPoints.Length];
+        LobbyManager.playerRagdolls = new Ragdoll[spawnPoints.Length];
         for (int i = 0; i < spawnPoints.Length; i++)
         {
-            Instantiate(Resources.Load("StickFigure") as GameObject, new Vector3(spawnPoints[i].X, 2, spawnPoints[i].Y), Quaternion.identity);
+            GameObject ragdoll = Instantiate(Resources.Load("StickFigure") as GameObject, new Vector3(spawnPoints[i].X, 2, spawnPoints[i].Y), Quaternion.identity);
+            ragdoll.transform.GetChild(0).GetComponent<Ragdoll>().controllerID = (byte)i;
+            LobbyManager.playerObjects[i] = ragdoll;
+            LobbyManager.playerRagdolls[i] = ragdoll.transform.GetChild(0).GetComponent<Ragdoll>();
         }
     }
 
