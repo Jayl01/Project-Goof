@@ -115,7 +115,8 @@ public class PacketReader
     {
         float xComponent = packet.GetFloat();
         float yComponent = packet.GetFloat();
+        float zComponent = packet.GetFloat();
 
-        LobbyManager.playerRagdolls[sender].SetMovement(new UnityEngine.Vector2(xComponent, yComponent));
+        LobbyManager.playerRagdolls[sender].SetMovement(new UnityEngine.Vector3(xComponent, yComponent, zComponent));
     }
 }

@@ -1,3 +1,4 @@
+using System.Numerics;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using System.Linq;
@@ -106,7 +107,7 @@ public static class SyncCall
         SendMessageToAllOthers(message);
     }
 
-    public static void SyncMovement(Vector2 movement)
+    public static void SyncMovement(Vector3 movement)
     {
         NetDataWriter message = new NetDataWriter(true, 10);
         message.Put((byte)PacketType.SpawnSyncMovement);
@@ -114,6 +115,7 @@ public static class SyncCall
 
         message.Put(movement.x);
         message.Put(movement.y);
+        message.Put(movement.z);
         SendMessageToAllOthers(message);
     }
 
