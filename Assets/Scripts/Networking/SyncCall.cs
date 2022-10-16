@@ -106,7 +106,7 @@ public static class SyncCall
         SendMessageToAllOthers(message);
     }
 
-    public static void SyncMovement(UnityEngine.Vector3 movement)
+    public static void SyncMovement(Vector3 movement)
     {
         NetDataWriter message = new NetDataWriter(true, 10);
         message.Put((byte)PacketType.SpawnSyncMovement);
@@ -136,6 +136,6 @@ public static class SyncCall
     /// <param name="deliveryMethod">The reliablility of the data.</param>
     public static void SendMessageToAllOthers(NetDataWriter writer, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered)
     {
-        LobbyManager.self.netManager.SendToAll(writer.Data, deliveryMethod, LobbyManager.self.netPeer);
+        LobbyManager.self.netManager.SendToAll(writer.Data, deliveryMethod);
     }
 }

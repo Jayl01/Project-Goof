@@ -39,14 +39,14 @@ public class Ragdoll : MonoBehaviour
     }
 
     public void OnMove(InputValue value){
-        // if (controllerID == LobbyManager.self.clientID)
-        // {
+        if (controllerID == LobbyManager.self.clientID)
+        {
             movement = value.Get<Vector3>();
             if (prevMovement != movement)
             {
                 prevMovement = movement;
                 SyncCall.SyncMovement(movement);
             }
-        // }
+        }
     }
 }

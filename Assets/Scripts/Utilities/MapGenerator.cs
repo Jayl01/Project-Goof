@@ -27,7 +27,11 @@ public class MapGenerator : MonoBehaviour
     public GameObject floorTile;
     public GameObject wallTile;
 
+    public GameObject[] outerMapDecorations;
+    public GameObject[] roomStructures;
+
     public GenerationDetails generationDetails;
+    public GenerationLayer[] worldData;
 
     private static MapGenerator mapGenerator;
     private Point[] spawnPoints;
@@ -58,10 +62,24 @@ public class MapGenerator : MonoBehaviour
         generationDetails = new GenerationDetails(new byte[1] { Tile.Wall }, new int[1] { 100 });
         GenerationLayer lowerWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 2);
         GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
-        GenerationLayer[] worldLayers = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
-        ConvertLayersTo3D(worldLayers);
+        worldData = new GenerationLayer[3] { floorLayer, lowerWallLayer, upperWallLayer };
+        ConvertLayersTo3D(worldData);
         if (LobbyManager.self != null)
-            SyncCall.SyncWorld(worldLayers);
+            SyncCall.SyncWorld(worldData);
+
+        for (int i = 0; i < roomStructures.Length; i++)
+        {
+
+        }
+
+        for (int i = 0; i < outerMapDecorations.Length; i++)
+        {
+            MapDetail detailInformation = outerMapDecorations[i].GetComponent<MapDetail>();
+            for (int j = 0; j < detailInformation.expectedAmount; j++)
+            {
+                GenerateOuterDecoration(i, detailInformation);
+            }
+        }
 
         Point[] spawnPoints = new Point[LobbyManager.GetAmountOfPlayersInLobby()];
         for (int i = 0; i < spawnPoints.Length; i++)
@@ -599,6 +617,34 @@ public class MapGenerator : MonoBehaviour
         return newGenerationLayer;
     }
 
+    public void GenerateOuterDecoration(int index, MapDetail details)
+    {
+        Point spawnPoint = new Point(worldRand.Next((details.width / 2) + 1, mapWidth - (details.width / 2)), worldRand.Next((details.height / 2) + 1, mapHeight - (details.height / 2)));
+        if (!details.canSpawnOverTiles)
+        {
+            bool safeToGenerate = true;
+            for (int x = spawnPoint.X - (details.width / 2); x < spawnPoint.X + (details.width / 2); x++)
+            {
+                for (int y = spawnPoint.Y - (details.height / 2); y < spawnPoint.Y + (details.height / 2); y++)
+                {
+                    if (TileExistsInAnyLayer(x, y))
+                    {
+                        safeToGenerate = false;
+                        break;
+                    }
+                }
+                if (!safeToGenerate)
+                    break;
+            }
+            if (!safeToGenerate)
+                return;
+        }
+
+        GameObject newObject = Instantiate(outerMapDecorations[index], mapContainer.transform);
+        newObject.transform.position = new Vector3(spawnPoint.X, details.altitude + worldRand.Next(-details.altitudeVariance, details.altitudeVariance + 1), spawnPoint.Y);
+        newObject.transform.rotation = Quaternion.Euler(0f, details.verticalRotation + worldRand.Next(-details.verticalRotationVariance, details.verticalRotationVariance + 1), 0f);
+    }
+
     public Tile[,] WrapExistingLayer(GenerationDetails generationDetails, GenerationLayer generationLayer)
     {
         Tile[,] newLayerTiles = new Tile[generationLayer.width, generationLayer.height];
@@ -710,6 +756,38 @@ public class MapGenerator : MonoBehaviour
     private bool TileAroundInPreviousLayer(Point tilePoint, GenerationLayer generationLayer)
     {
         return generationLayer.layerTiles[tilePoint.X, tilePoint.Y].tileType == Tile.Air && (generationLayer.CheckTileAbove(tilePoint).tileType != Tile.Air || generationLayer.CheckTileUnder(tilePoint).tileType != Tile.Air || generationLayer.CheckTileLeft(tilePoint).tileType != Tile.Air || generationLayer.CheckTileRight(tilePoint).tileType != Tile.Air);
+    }
+
+    /// <summary>
+    /// Checks whether or not a tile exists at a given point in any layer.
+    /// </summary>
+    /// <returns></returns>
+    private bool TileExistsInAnyLayer(int x, int y)
+    {
+        for (int i = 0; i < worldData.Length; i++)
+        {
+            if (worldData[i].layerTiles[x, y].tileType != Tile.Air)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether or not a tile exists at a given point in any layer.
+    /// </summary>
+    /// <returns></returns>
+    private bool TileExistsInAnyLayer(Point point)
+    {
+        for (int i = 0; i < worldData.Length; i++)
+        {
+            if (worldData[i].layerTiles[point.X, point.Y].tileType != Tile.Air)
+            {
+                return true;
+            }    
+        }
+        return false;
     }
 
     private void ConvertLayersTo3D(GenerationLayer[] generationLayers)

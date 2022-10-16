@@ -14,7 +14,11 @@ public class PacketReader
     {
         PacketType packetType = (PacketType)packet.GetByte();
         byte sender = packet.GetByte();
-        Console.WriteLine(packetType);
+
+        if (sender == LobbyManager.self.clientID)
+        {
+            int g = 5;
+        }
 
         switch (packetType)
         {

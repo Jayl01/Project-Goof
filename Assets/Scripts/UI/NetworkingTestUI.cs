@@ -1,6 +1,5 @@
 using System.Linq;
 using TMPro;
-using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static NetworkData;
@@ -11,7 +10,7 @@ public class NetworkingTestUI : MonoBehaviour
     public TextMeshProUGUI playerText;
 
     private string insertedName;
-    private string insertedKey;
+    private string insertedKey = "P";
     private string insertedIP;
 
     public void Update()
@@ -39,6 +38,11 @@ public class NetworkingTestUI : MonoBehaviour
     {
         LobbyManager.PlayerName = insertedName;
         LobbyManager.AttemptJoin(insertedIP, insertedKey);
+    }
+
+    public void DebugSoloClicked()
+    {
+        StartGame(true);
     }
 
     public void NameInsterted(string input)

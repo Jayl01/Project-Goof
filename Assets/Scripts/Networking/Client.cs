@@ -31,7 +31,6 @@ public class Client
         netListener.ConnectionRequestEvent += ConnectionRequestReceived;
         PacketReader.packetReader = new PacketReader();
         netManager = new NetManager(netListener);
-        netManager.NatPunchEnabled = false;
         netManager.UpdateTime = 15;
         netManager.EnableStatistics = true;
         netManager.Start();
@@ -47,7 +46,6 @@ public class Client
         netListener.ConnectionRequestEvent += ConnectionRequestReceived;
         PacketReader.packetReader = new PacketReader();
         netManager = new NetManager(netListener);
-        netManager.NatPunchEnabled = false;
         netManager.UpdateTime = 15;
         netManager.EnableStatistics = true;
         netManager.Start(LobbyManager.LobbyPort);
