@@ -21,6 +21,7 @@ public class MapGenerator : MonoBehaviour
     public int maximumRoomSize = 20;
     public int maxHallwaysPerRoom = 2;
     public int minimumRoomSpreadDistance = 24;      //Should be maximumRoomSize + any number
+    public int decorationPadding = 20;
 
     public GameObject mapContainer;
 
@@ -117,6 +118,13 @@ public class MapGenerator : MonoBehaviour
     /// <param name="point">The point</param>
     /// <returns>Whether or not the point is out of the bounds of the map.</returns>
     public bool CheckForOOB(Point point) => point.X < 0 || point.X >= mapWidth || point.Y < 0 || point.Y >= mapHeight;
+
+    /// <summary>
+    /// Checks if the given point is out of the bounds of the map.
+    /// </summary>
+    /// <param name="point">The point</param>
+    /// <returns>Whether or not the point is out of the bounds of the map.</returns>
+    public bool CheckForOOB(int x, int y) => x < 0 || x >= mapWidth || y < 0 || y >= mapHeight;
 
     public Tile[,] CreateSquareArea(int area, Point roomCenter, Tile[,] tiles, GenerationDetails details, Tile.GenerationID generationID)
     {
@@ -617,9 +625,14 @@ public class MapGenerator : MonoBehaviour
         return newGenerationLayer;
     }
 
+    /// <summary>
+    /// Attempts to place an object of the given index in the map.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="details"></param>
     public void GenerateOuterDecoration(int index, MapDetail details)
     {
-        Point spawnPoint = new Point(worldRand.Next((details.width / 2) + 1, mapWidth - (details.width / 2)), worldRand.Next((details.height / 2) + 1, mapHeight - (details.height / 2)));
+        Point spawnPoint = new Point(worldRand.Next((details.width / 2) + 1 - decorationPadding, mapWidth - (details.width / 2) + decorationPadding), worldRand.Next((details.height / 2) + 1 - decorationPadding, mapHeight - (details.height / 2) + decorationPadding));
         if (!details.canSpawnOverTiles)
         {
             bool safeToGenerate = true;
@@ -764,6 +777,9 @@ public class MapGenerator : MonoBehaviour
     /// <returns></returns>
     private bool TileExistsInAnyLayer(int x, int y)
     {
+        if (CheckForOOB(x, y))      //If it's OOB just let it be :)
+            return false;
+
         for (int i = 0; i < worldData.Length; i++)
         {
             if (worldData[i].layerTiles[x, y].tileType != Tile.Air)
