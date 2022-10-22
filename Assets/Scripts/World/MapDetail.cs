@@ -17,6 +17,7 @@ public class MapDetail : MonoBehaviour
     public int altitudeVariance;
     [Tooltip("Whether or not this object is able to spawn regardless of whether or not a tile already exists in those x-z coordinates.")]
     public bool canSpawnOverTiles;
+    public bool canClip;
     public int horizontalRotation;
     public int verticalRotation;
     public int horizontalRotationVariance;

@@ -471,20 +471,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapWidth: 160
   mapHeight: 160
-  minimumAmountOfRooms: 16
+  minimumAmountOfRooms: 26
   maximumAmountOfRooms: 28
   minimumRoomSize: 16
   maximumRoomSize: 24
   maxHallwaysPerRoom: 3
   minimumRoomSpreadDistance: 24
   decorationPadding: 10
+  roomDecorationPadding: 1
   mapContainer: {fileID: 1944998544}
   floorTile: {fileID: 684665400}
   wallTile: {fileID: 1595293113}
   outerMapDecorations:
   - {fileID: 275241086}
   - {fileID: 2033289599}
-  roomStructures: []
+  roomStructures:
+  - {fileID: 6984308945707671100, guid: 11eeb058e8ca52642857ff318e3a0eeb, type: 3}
 --- !u!4 &951349935
 Transform:
   m_ObjectHideFlags: 0

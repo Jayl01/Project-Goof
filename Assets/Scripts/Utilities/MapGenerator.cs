@@ -22,24 +22,78 @@ public class MapGenerator : MonoBehaviour
     public int maxHallwaysPerRoom = 2;
     public int minimumRoomSpreadDistance = 24;      //Should be maximumRoomSize + any number
     public int decorationPadding = 20;
+    public int roomDecorationPadding = 1;
 
     public GameObject mapContainer;
 
     public GameObject floorTile;
     public GameObject wallTile;
 
+    [Tooltip("An array of the decorations that can spawn outside of the walkable portions of the map. Every object in this array must have a MapDetail script attatched to it!")]
     public GameObject[] outerMapDecorations;
+    [Tooltip("An array of the decorations that can spawn inside of the 'rooms' of the map. Every object in this array must have a MapDetail script attatched to it!")]
     public GameObject[] roomStructures;
 
     public GenerationDetails generationDetails;
+    public List<Area> roomAreas;
     public GenerationLayer[] worldData;
+    public Dictionary<GenerationLayer, bool[,]> occupiedLayerTiles;
+
+    public struct Area      //Pretty much a rectangle but with easier-to-get fields.
+    {
+        public int X { get; }
+        public int Y { get; }
+        public int Width { get; }
+        public int Height { get; }
+        public Point Position { get; }
+        public Point Center { get; }
+        public Point Dimensions { get; }
+        public int Size { get; }
+
+        public Area(int x, int y, int width, int height)
+        {
+            X = x;
+            Y = y; 
+            Width = width;
+            Height = height; 
+            Position = new Point(x, y);
+            Dimensions = new Point(width, height);
+            Center = Position + (Dimensions / 2);
+            Size = width * height;
+        }
+
+        public Area(Point position, int width, int height)
+        {
+            X = position.X;
+            Y = position.Y;
+            Width = width;
+            Height = height;
+            Position = position;
+            Dimensions = new Point(width, height);
+            Center = Position + (Dimensions / 2);
+            Size = width * height;
+        }
+
+        public Area(Point position, Point dimensions)
+        {
+            X = position.X;
+            Y = position.Y;
+            Width = dimensions.X;
+            Height = dimensions.Y;
+            Position = position;
+            Dimensions = dimensions;
+            Center = Position + (Dimensions / 2);
+            Size = dimensions.X * dimensions.Y;
+        }
+    }
 
     private static MapGenerator mapGenerator;
-    private Point[] spawnPoints;
 
     public void Start()
     {
         mapGenerator = this;
+        roomAreas = new List<Area>();
+        occupiedLayerTiles = new Dictionary<GenerationLayer, bool[,]>();
         if (LobbyManager.self != null)
         {
             if (LobbyManager.self.serverOwner)
@@ -60,6 +114,7 @@ public class MapGenerator : MonoBehaviour
 
         generationDetails = new GenerationDetails(new byte[1] { Tile.Dirt }, new int[1] { 100 });
         GenerationLayer floorLayer = CreateFloorLayer(mapWidth, mapHeight);
+        occupiedLayerTiles.Add(floorLayer, new bool[mapWidth, mapHeight]);
         generationDetails = new GenerationDetails(new byte[1] { Tile.Wall }, new int[1] { 100 });
         GenerationLayer lowerWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 2);
         GenerationLayer upperWallLayer = new GenerationLayer(WrapExistingLayer(generationDetails, floorLayer), 3);
@@ -70,7 +125,11 @@ public class MapGenerator : MonoBehaviour
 
         for (int i = 0; i < roomStructures.Length; i++)
         {
-
+            InnerMapDetail detailInformation = roomStructures[i].GetComponent<InnerMapDetail>();
+            for (int j = 0; j < detailInformation.expectedAmount; j++)
+            {
+                GenerateRoomStructure(i, detailInformation);
+            }
         }
 
         for (int i = 0; i < outerMapDecorations.Length; i++)
@@ -141,6 +200,8 @@ public class MapGenerator : MonoBehaviour
                 tiles[tilePoint.X, tilePoint.Y] = Tile.CreateTile(tileType, tilePoint, generationID);
             }
         }
+
+        roomAreas.Add(new Area(roomTopLeft, area, area));
         return tiles;
     }
 
@@ -625,22 +686,28 @@ public class MapGenerator : MonoBehaviour
         return newGenerationLayer;
     }
 
-    /// <summary>
-    /// Attempts to place an object of the given index in the map.
-    /// </summary>
-    /// <param name="index"></param>
-    /// <param name="details"></param>
-    public void GenerateOuterDecoration(int index, MapDetail details)
+    public void GenerateRoomStructure(int index, InnerMapDetail details, int placementLayer = 0)
     {
-        Point spawnPoint = new Point(worldRand.Next((details.width / 2) + 1 - decorationPadding, mapWidth - (details.width / 2) + decorationPadding), worldRand.Next((details.height / 2) + 1 - decorationPadding, mapHeight - (details.height / 2) + decorationPadding));
-        if (!details.canSpawnOverTiles)
+        int padding = details.wallPadding >= roomDecorationPadding ? details.wallPadding : roomDecorationPadding;
+        bool safeToGenerate = false;
+        int generationAttempts = 0;
+        Point spawnPoint = Point.Zero;
+        while (!safeToGenerate && generationAttempts < 5)
         {
-            bool safeToGenerate = true;
+            int roomIndex = worldRand.Next(0, roomAreas.Count);
+            if (roomAreas[roomIndex].X - padding - 2 < details.width || roomAreas[roomIndex].Y - padding - 2 < details.height)
+            {
+                generationAttempts++;
+                continue;
+            }
+
+            spawnPoint = roomAreas[roomIndex].Center + new Point(worldRand.Next(-(roomAreas[roomIndex].Dimensions.X / 2) + padding, (roomAreas[roomIndex].Dimensions.X / 2) - padding + 1), worldRand.Next(-(roomAreas[roomIndex].Dimensions.Y / 2) + padding, (roomAreas[roomIndex].Dimensions.Y / 2) - padding + 1));
+            safeToGenerate = true;
             for (int x = spawnPoint.X - (details.width / 2); x < spawnPoint.X + (details.width / 2); x++)
             {
                 for (int y = spawnPoint.Y - (details.height / 2); y < spawnPoint.Y + (details.height / 2); y++)
                 {
-                    if (TileExistsInAnyLayer(x, y))
+                    if (!TileExistsInAnyLayer(x, y) || (!details.canClip && !CheckForOOB(x, y) && occupiedLayerTiles[worldData[placementLayer]][x, y]))
                     {
                         safeToGenerate = false;
                         break;
@@ -649,8 +716,62 @@ public class MapGenerator : MonoBehaviour
                 if (!safeToGenerate)
                     break;
             }
+            generationAttempts++;
+        }
+        if (!safeToGenerate)
+            return;
+
+        for (int x = spawnPoint.X - (details.width / 2); x < spawnPoint.X + (details.width / 2); x++)
+        {
+            for (int y = spawnPoint.Y - (details.height / 2); y < spawnPoint.Y + (details.height / 2); y++)
+            {
+                if (!CheckForOOB(x, y))
+                    occupiedLayerTiles[worldData[placementLayer]][x, y] = true;
+            }
+        }
+
+        GameObject newObject = Instantiate(roomStructures[index], mapContainer.transform);
+        newObject.transform.position = new Vector3(spawnPoint.X, 1f + details.heightAboveBase + worldRand.Next(0, details.heightVariance + 1), spawnPoint.Y);
+        newObject.transform.rotation = Quaternion.Euler(0f, details.verticalRotation + worldRand.Next(-details.verticalRotationVariance, details.verticalRotationVariance + 1), 0f);
+    }
+
+    public void GenerateHallwayStructure(int index, MapDetail details)
+    {
+
+    }
+
+    /// <summary>
+    /// Attempts to place an object of the given index in the map.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="details"></param>
+    public void GenerateOuterDecoration(int index, MapDetail details, int placementLayer = 0)
+    {
+        Point spawnPoint = new Point(worldRand.Next((details.width / 2) + 1 - decorationPadding, mapWidth - (details.width / 2) + decorationPadding), worldRand.Next((details.height / 2) + 1 - decorationPadding, mapHeight - (details.height / 2) + decorationPadding));
+        bool safeToGenerate = true;
+        for (int x = spawnPoint.X - (details.width / 2); x < spawnPoint.X + (details.width / 2); x++)
+        {
+            for (int y = spawnPoint.Y - (details.height / 2); y < spawnPoint.Y + (details.height / 2); y++)
+            {
+                if ((!details.canSpawnOverTiles && TileExistsInAnyLayer(x, y)) || (!details.canClip && !CheckForOOB(x, y) && occupiedLayerTiles[worldData[placementLayer]][x, y]))
+                {
+                    safeToGenerate = false;
+                    break;
+                }
+            }
             if (!safeToGenerate)
-                return;
+                break;
+        }
+        if (!safeToGenerate)
+            return;
+
+        for (int x = spawnPoint.X - (details.width / 2); x < spawnPoint.X + (details.width / 2); x++)
+        {
+            for (int y = spawnPoint.Y - (details.height / 2); y < spawnPoint.Y + (details.height / 2); y++)
+            {
+                if (!CheckForOOB(x, y))
+                    occupiedLayerTiles[worldData[placementLayer]][x, y] = true;
+            }
         }
 
         GameObject newObject = Instantiate(outerMapDecorations[index], mapContainer.transform);

@@ -24,6 +24,18 @@ public struct Point     //I really have to be implementing basic XNA things!?!
     public static Point operator -(Point a, Point b)
         => new Point(a.X - b.X, a.Y - b.Y);
 
+    public static Point operator *(Point a, Point b)
+        => new Point(a.X * b.X, a.Y * b.Y);
+
+    public static Point operator /(Point a, Point b)
+        => new Point(a.X / b.X, a.Y / b.Y);
+
+    public static Point operator *(Point a, int b)
+    => new Point(a.X * b, a.Y * b);
+
+    public static Point operator /(Point a, int b)
+        => new Point(a.X / b, a.Y / b);
+
     public Point(int x, int y)
     {
         X = x;
