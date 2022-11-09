@@ -29,6 +29,7 @@ public class Ragdoll : MonoBehaviour
 
     private void FixedUpdate()
     {
+        movement *= 0.92f;
         rootBone.AddVelocity(movement * speed);
         rootBone.UpdateAll(accuracy, maxSpeed);
     }
@@ -41,7 +42,18 @@ public class Ragdoll : MonoBehaviour
     public void OnMove(InputValue value){
         if (controllerID == LobbyManager.self.clientID)
         {
-            movement = value.Get<Vector3>();
+            Vector3 moveVector = value.Get<Vector3>();
+            if (moveVector.x < 0)
+                movement = -transform.GetChild(0).right;
+            else if (moveVector.x > 0)
+                movement = transform.GetChild(0).right;
+
+            if (moveVector.z > 0)
+                movement = transform.GetChild(0).forward;
+            else if (moveVector.z < 0)
+                movement = -transform.GetChild(0).forward;
+            movement *= 0.11f;
+            //movement = value.Get<Vector3>();
             if (prevMovement != movement)
             {
                 prevMovement = movement;

@@ -53,9 +53,9 @@ public class MapGenerator : MonoBehaviour
         public Area(int x, int y, int width, int height)
         {
             X = x;
-            Y = y; 
+            Y = y;
             Width = width;
-            Height = height; 
+            Height = height;
             Position = new Point(x, y);
             Dimensions = new Point(width, height);
             Center = Position + (Dimensions / 2);
@@ -85,6 +85,11 @@ public class MapGenerator : MonoBehaviour
             Center = Position + (Dimensions / 2);
             Size = dimensions.X * dimensions.Y;
         }
+    }
+
+    public struct GeneratedMapDetail
+    {
+
     }
 
     private static MapGenerator mapGenerator;
@@ -164,10 +169,12 @@ public class MapGenerator : MonoBehaviour
         LobbyManager.playerRagdolls = new Ragdoll[spawnPoints.Length];
         for (int i = 0; i < spawnPoints.Length; i++)
         {
-            GameObject ragdoll = Instantiate(Resources.Load("StickFigure") as GameObject, new Vector3(spawnPoints[i].X, 2, spawnPoints[i].Y), Quaternion.identity);
+            GameObject ragdoll = Instantiate(Resources.Load("SmollFigure") as GameObject, new Vector3(spawnPoints[i].X, 2, spawnPoints[i].Y), Quaternion.identity);
             ragdoll.transform.GetChild(0).GetComponent<Ragdoll>().controllerID = (byte)i;
             LobbyManager.playerObjects[i] = ragdoll;
             LobbyManager.playerRagdolls[i] = ragdoll.transform.GetChild(0).GetComponent<Ragdoll>();
+            if (i == LobbyManager.self.clientID)
+                Instantiate(Resources.Load("AttatchableCamera") as GameObject, new Vector3(0f, 0f, -12f), Quaternion.identity, ragdoll.transform.GetChild(0).transform.GetChild(0)).GetComponent<AttatchableCamera>().objectScale = 0.3f;
         }
     }
 

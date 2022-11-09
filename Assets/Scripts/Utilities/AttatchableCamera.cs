@@ -1,145 +1,139 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.Rendering.DebugUI;
 
 public class AttatchableCamera : MonoBehaviour
 {
     public int MaxFollowDistance = 8;
     public const float LookSensitivity = 20f;
 
-    private Camera camera;
+    [Tooltip("Whether or not to have this camera apply it's own rotation to the object it is attached to.")]
+    public bool ForceRotationOnObject = true;
+    public float objectScale = 1f;
+
     private GameObject attatchedObject;     //The object the camera is attatched to.
-    private BoxCollider cameraBoxCollider;
-    private Vector2 expectedLookVector;
+    private Vector2 newLookVector;
     private Vector2 oldLookVector;
     private Vector3 expectedCameraPosition;
 
-    private float xRotationView;
-    private float yRotationView;
+    private float xRotation;
+    private float yRotation;
     private float currentFollowDistance;
-    private float expectedZoom;
-    private bool issuedRaycastFix = false;
-    private int triggerDetectionTimer = 0;
+    private float newFollowDistance;
 
     public void Start()
     {
-        camera = GetComponent<Camera>();
         attatchedObject = transform.parent.gameObject;
-        currentFollowDistance = MaxFollowDistance;
-        expectedZoom = MaxFollowDistance;
+        newFollowDistance = currentFollowDistance = MaxFollowDistance;
         Cursor.lockState = CursorLockMode.Locked;
-        expectedLookVector = attatchedObject.transform.eulerAngles;
-        cameraBoxCollider = GetComponent<BoxCollider>();
-        cameraBoxCollider.center = new Vector3(0f, 0f, (expectedZoom / 2f) - 1f);
-        cameraBoxCollider.size = new Vector3(0f, 0f, expectedZoom);
+        newLookVector = attatchedObject.transform.eulerAngles;
     }
 
     public void FixedUpdate()
     {
-        if (triggerDetectionTimer > 0)
-            triggerDetectionTimer--;
-        //LimitDistance();
         GetProperZoom();
         GetProperRotation();
         SetPosition();
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (Cursor.lockState == CursorLockMode.None)
-                Cursor.lockState = CursorLockMode.Locked;
-            else
-                Cursor.lockState = CursorLockMode.None;
-        }
     }
 
     public void LateUpdate()
     {
-        transform.localPosition = expectedCameraPosition;
+        transform.localPosition = expectedCameraPosition * objectScale;
     }
 
-    public void OnTriggerStay(Collider other)
-    {
-        Vector3 raycastPosition = attatchedObject.transform.position;
-        Ray ray = new Ray(raycastPosition, transform.position - attatchedObject.transform.position);
-        if (Physics.Raycast(ray, out RaycastHit hitInfo, currentFollowDistance))
-        {
-            expectedCameraPosition.z = -hitInfo.distance + 1f;
-            cameraBoxCollider.center = new Vector3(0f, 0f, (expectedZoom / 2f) - 1f);
-            cameraBoxCollider.size = new Vector3(0f, 0f, expectedZoom);
-            issuedRaycastFix = true;
-        }
-        triggerDetectionTimer = 10;
-    }
-
-
+    /// <summary>
+    /// Updates the position of the camera.
+    /// </summary>
     public void SetPosition()
     {
-        if (triggerDetectionTimer > 0)
-            return;
-
-        if (oldLookVector != expectedLookVector)
+        if (oldLookVector != newLookVector)
         {
-            oldLookVector = expectedLookVector;
-            expectedCameraPosition = new Vector3(0f, 0f, -currentFollowDistance);
-            issuedRaycastFix = false;
+            expectedCameraPosition = new Vector3(0f, 0f, -currentFollowDistance + 2f);
+            Vector3 raycastPosition = attatchedObject.transform.position;
+            Vector3 raycastDirection = transform.position - attatchedObject.transform.position;
+            Ray ray = new Ray(raycastPosition + -raycastDirection.normalized, raycastDirection);
+            float averageDistance = 0f;
+            for (int i = 0; i < 2; i++)
+            {
+                if (Physics.Raycast(ray, out RaycastHit hitInfo, currentFollowDistance))
+                {
+                    if (hitInfo.distance <= 0f)
+                        continue;
+
+                    averageDistance += hitInfo.distance;
+                }
+            }
+            if (averageDistance > 0f)
+            {
+                averageDistance /= 2f;
+                expectedCameraPosition.z = -averageDistance + 2f;
+            }
+            oldLookVector = newLookVector;
         }
     }
 
-    public void LimitDistance()
-    {
-        Vector3 currentPosition = transform.localPosition;
-        if (Vector3.Distance(currentPosition, attatchedObject.transform.position) < currentFollowDistance)
-        {
-            Vector3 newPosition = currentPosition - attatchedObject.transform.position;
-            newPosition.Normalize();
-            expectedCameraPosition = newPosition * currentFollowDistance;
-        }
-    }
-
+    /// <summary>
+    /// Lerps the zoom to whatever the current value is.
+    /// </summary>
     public void GetProperZoom()
     {
-        currentFollowDistance = Mathf.Lerp(currentFollowDistance, expectedZoom, 0.96f);
+        currentFollowDistance = Mathf.Lerp(currentFollowDistance, newFollowDistance, 0.96f);
     }
 
+    /// <summary>
+    /// Updates the rotation of the camrea with the new look vector obtained through inputs.
+    /// </summary>
     public void GetProperRotation()
     {
-        attatchedObject.transform.eulerAngles = expectedLookVector;
-        transform.eulerAngles = attatchedObject.transform.eulerAngles;
+        if (ForceRotationOnObject)
+        {
+            attatchedObject.transform.eulerAngles = newLookVector;
+            transform.eulerAngles = attatchedObject.transform.eulerAngles;
+        }
+        else
+        {
+            transform.eulerAngles = newLookVector;
+        }
     }
 
+    /// <summary>
+    /// Updates the rotation of the camera based on the new input coordinates.
+    /// </summary>
+    /// <param name="vector">The 2D mouse vector to use.</param>
+    /// <returns>A new 3D rotation based on the input vector.</returns>
     public Vector3 GetNewRotation(Vector2 vector)
     {
         float mouseX = vector.x * LookSensitivity * Time.deltaTime;
         float mouseY = vector.y * LookSensitivity * Time.deltaTime;
 
-        yRotationView += mouseX;
-        xRotationView += -mouseY;
-        xRotationView = Mathf.Clamp(xRotationView, -90, 90);
+        yRotation += mouseX;
+        xRotation += -mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90, 90);
 
-        return new Vector3(xRotationView, yRotationView, 0.0f);
+        return new Vector3(xRotation, yRotation, 0.0f);
     }
 
+    //Called by the input thing
     public void OnMousePosX(InputValue value)
     {
         float deltaX = value.Get<float>();
         Vector3 newLookAngle = GetNewRotation(new Vector2(deltaX, 0f));
-        expectedLookVector = newLookAngle;
+        newLookVector = newLookAngle;
     }
 
+    //Called by the input thing
     public void OnMousePosY(InputValue value)
     {
         float deltaY = value.Get<float>();
         Vector3 newLookAngle = GetNewRotation(new Vector2(0f, deltaY));
-        expectedLookVector = newLookAngle;
+        newLookVector = newLookAngle;
     }
 
+    //Called by the input thing
     public void OnScroll(InputValue value)
     {
         Vector2 scrollDelta = value.Get<Vector2>();
 
-        expectedZoom += -scrollDelta.y / 200f;
-        expectedZoom = Mathf.Clamp(expectedZoom, MaxFollowDistance / 2, MaxFollowDistance);
+        newFollowDistance += -scrollDelta.y / 200f;
+        newFollowDistance = Mathf.Clamp(newFollowDistance, MaxFollowDistance / 2, MaxFollowDistance);
     }
 }
